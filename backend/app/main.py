@@ -57,7 +57,15 @@ app.include_router(stats_router, prefix="/api/v1/stats", tags=["Statistics"])
 
 @app.get("/")
 async def root():
-    return {"message": f"Welcome to {config.PROJECT_NAME} API v1.1"}
+    return {
+        "status": "online",
+        "message": f"Welcome to {config.PROJECT_NAME} API v1.1",
+        "version": "1.1.0"
+    }
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": config.PROJECT_NAME}
 
 if __name__ == "__main__":
     logger.info("Starting JobGuard AI Backend...")
