@@ -15,8 +15,14 @@ POSTGRES_DB = os.getenv("POSTGRES_DB", "jobguard")
 
 # Handle Supabase/Render DATABASE_URL format
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if DATABASE_URL:
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    # Log that we found a remote DB (without showing the full URL for security)
+    print("✅ DATABASE_URL environment variable found. Connecting to remote database...")
+else:
+    print("⚠️ WARNING: DATABASE_URL not found! Falling back to localhost (Developer Mode).")
 
 SQLALCHEMY_DATABASE_URI = DATABASE_URL or f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 
