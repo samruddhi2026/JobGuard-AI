@@ -68,7 +68,7 @@ npm run dev
 ```
 
 ## 📜 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is proprietary. All rights reserved by **samruddhi2026**. See the [LICENSE](./LICENSE) file for more information.
 
 ---
-*Built with passion for safe and intelligent career growth.*
+*Copyright (c) 2026 samruddhi2026. Built with passion for safe and intelligent career growth.*
