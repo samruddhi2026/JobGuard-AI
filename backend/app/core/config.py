@@ -13,15 +13,20 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "root")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "jobguard")
 
-SQLALCHEMY_DATABASE_URI = os.getenv(
-    "DATABASE_URL",
-    f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
-)
+# Handle Supabase/Render DATABASE_URL format
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+SQLALCHEMY_DATABASE_URI = DATABASE_URL or f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 
 # Security & CORS
-BACKEND_CORS_ORIGINS: List[str] = os.getenv(
-    "BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
-).split(",")
+CORS_ORIGINS_STR = os.getenv("BACKEND_CORS_ORIGINS", "")
+if CORS_ORIGINS_STR:
+    BACKEND_CORS_ORIGINS: List[str] = [origin.strip() for origin in CORS_ORIGINS_STR.split(",")]
+else:
+    # Allow local and a wildcard for initial free hosting setup
+    BACKEND_CORS_ORIGINS: List[str] = ["*"] 
 
 # AI Performance
 ENV = os.getenv("ENV", "development")
