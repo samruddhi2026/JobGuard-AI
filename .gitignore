@@ -1,0 +1,30 @@
+# Common
+.DS_Store
+.env
+.env.*
+node_modules/
+dist/
+build/
+*.log
+
+# Python
+backend/venv/
+backend/.venv/
+**/__pycache__/
+*.py[cod]
+*$py.class
+backend/.pytest_cache/
+backend/.mypy_cache/
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/.next-env.d.ts
+
+# DB
+*.sqlite3
+*.db
+
+# Temporary
+tmp/
+.gemini/

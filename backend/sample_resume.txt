@@ -1,0 +1,9 @@
+John Doe
+Software Engineer
+Skills: Python, React, FastAPI, SQL, Docker
+Experience:
+Senior Developer at Tech Corp (2020-2024)
+- Developed AI-powered applications.
+- Managed a team of 5 engineers.
+Education:
+BS in Computer Science, University of Technology

@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 230 25% 4%;
+
+  --card: 0 0% 98%;
+  --card-foreground: 230 25% 4%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 230 25% 4%;
+
+  --primary: 210 100% 50%;
+  --primary-foreground: 210 20% 98%;
+
+  --secondary: 210 40% 94%;
+  --secondary-foreground: 222 47% 11%;
+
+  --muted: 210 20% 94%;
+  --muted-foreground: 215 16% 35%;
+
+  --accent: 199 89% 48%;
+  --accent-foreground: 210 20% 98%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 20% 98%;
+
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 210 100% 50%;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 230 25% 4%;
+  --foreground: 210 20% 98%;
+
+  --card: 230 25% 6%;
+  --card-foreground: 210 20% 98%;
+
+  --popover: 230 25% 5%;
+  --popover-foreground: 210 20% 98%;
+
+  --primary: 210 100% 55%;
+  --primary-foreground: 210 20% 98%;
+
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 20% 98%;
+
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 210 100% 55%;
+  --accent-foreground: 210 20% 98%;
+
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 20% 98%;
+
+  --border: 230 25% 12%;
+  --input: 230 25% 12%;
+  --ring: 210 100% 55%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+  background-image:
+    radial-gradient(at 0% 0%, hsla(210, 100%, 50%, 0.15) 0, transparent 40%),
+    radial-gradient(at 100% 100%, hsla(190, 90%, 60%, 0.1) 0, transparent 40%);
+  min-height: 100vh;
+}
+
+.glass {
+  background: hsl(var(--card) / 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsla(var(--foreground) / 0.15);
+  box-shadow: 0 12px 48px -12px hsla(var(--foreground) / 0.12);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
