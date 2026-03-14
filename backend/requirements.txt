@@ -1,6 +1,8 @@
 fastapi
 uvicorn[standard]
 gunicorn
+slowapi
+loguru
 sqlalchemy
 psycopg2-binary
 pydantic[email]
