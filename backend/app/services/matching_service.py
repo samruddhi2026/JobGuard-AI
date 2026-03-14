@@ -1,18 +1,14 @@
 from loguru import logger
-from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from app.services.ats_service import ATSService
 import numpy as np
 
 class MatchingService:
     def __init__(self):
         self.ats_service = ATSService()
-        try:
-            # lightweight model for production speed
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
-            logger.success("Loaded SentenceTransformer model 'all-MiniLM-L6-v2' successfully.")
-        except Exception as e:
-            logger.critical(f"Failed to load SentenceTransformer model. Error: {e}")
-            self.model = None
+        # No heavy model loading at startup for 512MB RAM compatibility
+        logger.info("Initialized lightweight MatchingService using TF-IDF.")
 
     def _extract_years(self, text: str) -> int:
         """Helper to extract maximum years of experience mentioned in text."""
@@ -104,14 +100,15 @@ class MatchingService:
         return max(30.0, score)
 
     def get_match_score(self, resume_text: str, job_description: str) -> dict:
-        if not self.model:
-            return {"match_score": 0, "error": "Model not loaded"}
-
-        # 1. Semantic Similarity (40% Weight)
-        resume_embedding = self.model.encode(resume_text, convert_to_tensor=True)
-        job_embedding = self.model.encode(job_description, convert_to_tensor=True)
-        cosine_score = float(util.cos_sim(resume_embedding, job_embedding)[0][0])
-        sem_sim_pct = round(cosine_score * 100, 2)
+        # 1. Semantic Similarity (40% Weight) using Lightweight TF-IDF
+        try:
+            vectorizer = TfidfVectorizer(stop_words='english')
+            tfidf_matrix = vectorizer.fit_transform([resume_text, job_description])
+            cosine_score = float(cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0])
+            sem_sim_pct = round(cosine_score * 100, 2)
+        except Exception as e:
+            logger.error(f"TF-IDF Math error: {e}")
+            sem_sim_pct = 0.0
         
         # 2. Skill-based Matching (30% Weight)
         resume_skills = set(self.ats_service.extract_skills(resume_text))

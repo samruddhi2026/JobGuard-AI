@@ -1,5 +1,4 @@
 from loguru import logger
-import spacy
 import re
 from typing import List, Dict
 
@@ -35,13 +34,8 @@ class ATSService:
     }
 
     def __init__(self):
-        try:
-            # Using sm model for performance, but we can use md/lg for better vectors
-            self.nlp = spacy.load("en_core_web_sm")
-            logger.success("Loaded spaCy model 'en_core_web_sm' successfully.")
-        except (OSError, ImportError, Exception) as e:
-            logger.critical(f"Failed to load spaCy model 'en_core_web_sm'. Error: {e}")
-            self.nlp = None
+        # Initialized without heavy spaCy models for 512MB RAM compatibility
+        logger.info("Initialized ATSService without heavy NLP models.")
 
     def get_skill_category(self, skill: str) -> str:
         for cat, skills in self.SKILL_CATEGORIES.items():

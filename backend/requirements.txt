@@ -12,9 +12,6 @@ python-multipart
 python-dotenv
 requests
 beautifulsoup4
-playwright
-spacy
-sentence-transformers
 scikit-learn
 redis
 passlib[bcrypt]
