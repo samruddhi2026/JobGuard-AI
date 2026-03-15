@@ -35,7 +35,7 @@ services:
     build: ./frontend
     restart: always
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+      NEXT_PUBLIC_API_URL: https://jobguard-ai-3q04.onrender.com
     ports:
       - "3000:3000"
     depends_on:
