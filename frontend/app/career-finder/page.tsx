@@ -4,16 +4,35 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { Search, Globe, CheckCircle2, Building2, MapPin, ExternalLink, RefreshCw, Briefcase, Info, Zap, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+
+interface JobListing {
+    company: string;
+    location: string;
+    role: string;
+    source: string;
+    posted: string;
+    description?: string;
+    job_type?: string;
+    experience?: string;
+    link: string;
+    verified?: boolean;
+}
+
+interface SearchResponse {
+    jobs?: JobListing[];
+}
 
 export default function CareerFinder() {
     const [company, setCompany] = useState("");
     const [location, setLocation] = useState("");
     const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<JobListing[]>([]);
     const [mounted, setMounted] = useState(false);
-    const [selectedJob, setSelectedJob] = useState<any>(null);
+    const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -25,6 +44,7 @@ export default function CareerFinder() {
 
         setLoading(true);
         setResults([]);
+        setError(null);
 
         try {
             const baseUrl = `${API_BASE_URL}/scraper/search`;
@@ -35,15 +55,20 @@ export default function CareerFinder() {
 
             const response = await fetch(`${baseUrl}?${params.toString()}`);
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || "Search failed");
+                const errorData = await response.json().catch(() => null);
+                const message = errorData && typeof errorData === "object" && "detail" in errorData && typeof errorData.detail === "string"
+                    ? errorData.detail
+                    : "Search failed";
+                throw new Error(message);
             }
 
-            const data = await response.json();
+            const data = await response.json() as SearchResponse;
             setResults(data.jobs || []);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            alert(`Search Failed: ${err.message}`);
+            const message = err instanceof Error ? err.message : "Search failed. Please try again.";
+            setError(message);
+            toast.error(message);
         } finally {
             setLoading(false);
         }
@@ -97,7 +122,7 @@ export default function CareerFinder() {
                                         <div className="px-4 py-2 rounded-xl bg-accent/10 border border-accent/20 text-accent font-bold text-sm">
                                             Source: {selectedJob.source}
                                         </div>
-                                        <span className="text-xs text-muted-foreground">Discovered {selectedJob.posted}</span>
+                                        <span className="text-xs text-muted-foreground">Discovered {selectedJob.posted || "recently"}</span>
                                     </div>
                                 </div>
 
@@ -138,7 +163,7 @@ export default function CareerFinder() {
 
                                         <div className="space-y-3">
                                             <a
-                                                href={selectedJob.link}
+                                                href={selectedJob.link || "#"}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="w-full py-5 rounded-2xl bg-primary text-white font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-primary/20"
@@ -187,7 +212,7 @@ export default function CareerFinder() {
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder="Search Role (e.g. AI Engineer)"
+                                    placeholder="Search company or role"
                                     required
                                     value={company}
                                     onChange={(e) => setCompany(e.target.value)}
@@ -229,6 +254,12 @@ export default function CareerFinder() {
                                 <h3 className="text-2xl font-bold mb-2">Scraping Career Portals...</h3>
                                 <p className="text-muted-foreground">Checking Greenhouse, Lever, LinkedIn, and Official Sites.</p>
                             </div>
+                        ) : error ? (
+                            <div className="text-center py-20 rounded-3xl border border-red-500/20 bg-red-500/5">
+                                <Briefcase className="w-12 h-12 text-red-400 mx-auto mb-4 opacity-80" />
+                                <h3 className="text-xl font-bold mb-2">Search unavailable right now</h3>
+                                <p className="text-muted-foreground text-sm">{error}</p>
+                            </div>
                         ) : results.length > 0 ? (
                             <motion.div
                                 initial={{ opacity: 0 }}
@@ -236,10 +267,10 @@ export default function CareerFinder() {
                                 className="space-y-4"
                             >
                                 <div className="flex items-center justify-between mb-6 px-4">
-                                    <h3 className="font-bold text-xl">{results.length} Verified Openings for "{company}"</h3>
+                                    <h3 className="font-bold text-xl">{results.length} Verified Openings for &quot;{company}&quot;</h3>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <Info className="w-3 h-3" />
-                                        Prices and availability updated in real-time.
+                                        Listings fetched from connected sources.
                                     </div>
                                 </div>
 
@@ -286,7 +317,7 @@ export default function CareerFinder() {
                                                         <Info className="w-3 h-3" /> Job Overview
                                                     </p>
                                                     <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed italic">
-                                                        "{job.description || "No description available for this listing."}"
+                                                        {job.description || "No description available for this listing."}
                                                     </p>
                                                 </div>
 
@@ -311,7 +342,7 @@ export default function CareerFinder() {
                         ) : !loading && company ? (
                             <div className="text-center py-20 rounded-3xl border-2 border-dashed border-border/40">
                                 <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                                <h3 className="text-xl font-bold mb-2">No jobs found for "{company}"</h3>
+                                <h3 className="text-xl font-bold mb-2">No jobs found for &quot;{company}&quot;</h3>
                                 <p className="text-muted-foreground text-sm">Try searching for a different company or check spelling.</p>
                             </div>
                         ) : null}

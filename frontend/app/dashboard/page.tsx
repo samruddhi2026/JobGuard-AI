@@ -2,29 +2,53 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
-import { LayoutDashboard, History, Shield, FileCheck, Search, Zap, ArrowUpRight, TrendingUp, RefreshCw } from "lucide-react";
+import { History, Shield, FileCheck, Search, Zap, ArrowUpRight, TrendingUp, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
+interface StatCard {
+    label: string;
+    value: string;
+    trend: string;
+}
+
+interface RecentActivity {
+    type: string;
+    target: string;
+    status: string;
+    score: number;
+    time: string;
+}
+
+interface DashboardResponse {
+    stats?: StatCard[];
+    recent_activity?: RecentActivity[];
+}
+
 export default function Dashboard() {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<DashboardResponse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchStats = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/stats/summary`);
+            if (!response.ok) throw new Error("Failed to fetch stats");
+            const json = await response.json() as DashboardResponse;
+            setData(json);
+        } catch (err) {
+            console.error(err);
+            setError(err instanceof Error ? err.message : "Failed to load analytics.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/stats/summary`);
-                if (!response.ok) throw new Error("Failed to fetch stats");
-                const json = await response.json();
-                setData(json);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchStats();
     }, []);
 
@@ -46,7 +70,7 @@ export default function Dashboard() {
     ];
 
     // Map icons back since they come from backend as text/labels
-    const statsWithIcons = stats.map((s: any, i: number) => ({
+    const statsWithIcons = stats.map((s, i) => ({
         ...s,
         icon: i === 0 ? <Shield className="w-5 h-5 text-primary" /> :
             i === 1 ? <FileCheck className="w-5 h-5 text-secondary" /> :
@@ -66,16 +90,28 @@ export default function Dashboard() {
                         <p className="text-muted-foreground italic font-medium">Real-time data from all JobGuard AI users.</p>
                     </div>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={fetchStats}
                         className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold flex items-center gap-2 hover:opacity-90 transition-opacity"
                     >
                         <RefreshCw className="w-4 h-4" /> Refresh Data
                     </button>
                 </div>
 
+                {error && (
+                    <div className="mb-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-5 py-4 text-sm text-yellow-100">
+                        <div className="flex items-center gap-2 font-semibold text-yellow-300">
+                            <AlertCircle className="h-4 w-4" />
+                            Live analytics could not be loaded
+                        </div>
+                        <p className="mt-2 text-yellow-100/80">
+                            Showing fallback values until the backend or database connection recovers. {error}
+                        </p>
+                    </div>
+                )}
+
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    {statsWithIcons.map((stat: any, i: number) => (
+                    {statsWithIcons.map((stat, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, y: 10 }}
@@ -116,7 +152,7 @@ export default function Dashboard() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border/20">
-                                        {recentActivity.map((act: any, i: number) => (
+                                        {recentActivity.map((act, i) => (
                                             <tr key={i} className="hover:bg-white/5 transition-colors cursor-pointer group">
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-3">

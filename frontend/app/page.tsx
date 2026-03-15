@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import { Shield, FileCheck, Search, Zap, CheckCircle2, AlertTriangle, ArrowRight } from "lucide-react";
+import { Shield, FileCheck, Search, Zap, CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 

@@ -3,15 +3,23 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { Shield, AlertCircle, CheckCircle2, Search, Link as LinkIcon, ArrowRight } from "lucide-react";
+import { Shield, AlertCircle, CheckCircle2, Link as LinkIcon, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { apiRequest, apiFormRequest } from "@/lib/api"; // Added apiFormRequest based on instruction context
+import { apiRequest } from "@/lib/api";
+
+interface VerifyResponse {
+    status?: string;
+    domain?: string;
+    trust_score?: number;
+    explanation?: string;
+    red_flags?: string[];
+}
 
 export default function JobVerifier() {
     const [url, setUrl] = useState("");
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<VerifyResponse | null>(null);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -26,7 +34,7 @@ export default function JobVerifier() {
         setResult(null);
 
         try {
-            const data = await apiRequest("/verify/verify", {
+            const data = await apiRequest<VerifyResponse>("/verify/verify", {
                 method: "POST",
                 body: JSON.stringify({ url })
             });
@@ -35,15 +43,17 @@ export default function JobVerifier() {
             if (data.status === "Safe") {
                 toast.success("Link analyzed: Domain appears safe.");
             } else {
-                toast.warning(`Warning: ${data.status} detected.`);
+                toast.warning(`Warning: ${data.status || "Risk"} detected.`);
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            toast.error(err.message || "Please enter a valid URL (e.g., https://company.com/jobs)");
+            toast.error(err instanceof Error ? err.message : "Please enter a valid URL (e.g., https://company.com/jobs)");
         } finally {
             setLoading(false);
         }
     };
+
+    const redFlags = result?.red_flags ?? [];
 
     return (
         <main className="min-h-screen flex flex-col">
@@ -110,12 +120,12 @@ export default function JobVerifier() {
                                                 {result.status === "Safe" ? <CheckCircle2 /> : <AlertCircle />}
                                             </div>
                                             <div>
-                                                <h2 className="text-xl font-bold">{result.status}</h2>
-                                                <p className="text-muted-foreground text-sm">{result.domain}</p>
+                                                <h2 className="text-xl font-bold">{result.status || "Unknown"}</h2>
+                                                <p className="text-muted-foreground text-sm">{result.domain || "Domain unavailable"}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-3xl font-bold">{result.trust_score}%</div>
+                                            <div className="text-3xl font-bold">{result.trust_score ?? 0}%</div>
                                             <div className="text-muted-foreground text-xs uppercase tracking-widest font-semibold">Trust Score</div>
                                         </div>
                                     </div>
@@ -123,19 +133,23 @@ export default function JobVerifier() {
                                     <div className="p-8 space-y-8">
                                         <div>
                                             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">AI Explanation</h3>
-                                            <p className="text-lg leading-relaxed">{result.explanation}</p>
+                                            <p className="text-lg leading-relaxed">{result.explanation || "No explanation was returned for this verification."}</p>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <div>
                                                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Risk Analysis</h3>
                                                 <div className="space-y-3">
-                                                    {result.red_flags.map((flag: string, i: number) => (
-                                                        <div key={i} className="flex gap-3 text-sm">
-                                                            <AlertCircle className={`w-4 h-4 shrink-0 ${result.status === "Safe" ? "text-green-500" : "text-yellow-500"}`} />
-                                                            <span>{flag}</span>
-                                                        </div>
-                                                    ))}
+                                                    {redFlags.length > 0 ? (
+                                                        redFlags.map((flag, i) => (
+                                                            <div key={i} className="flex gap-3 text-sm">
+                                                                <AlertCircle className={`w-4 h-4 shrink-0 ${result.status === "Safe" ? "text-green-500" : "text-yellow-500"}`} />
+                                                                <span>{flag}</span>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p className="text-sm text-muted-foreground">No specific red flags were returned.</p>
+                                                    )}
                                                 </div>
                                             </div>
 

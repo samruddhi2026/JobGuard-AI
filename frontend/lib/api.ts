@@ -1,6 +1,21 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
-export async function apiRequest(endpoint: string, options: RequestInit = {}) {
+async function getErrorMessage(response: Response) {
+    const errorData = await response.json().catch(() => null);
+
+    if (
+        errorData &&
+        typeof errorData === "object" &&
+        "detail" in errorData &&
+        typeof errorData.detail === "string"
+    ) {
+        return errorData.detail;
+    }
+
+    return `Request failed with status ${response.status}`;
+}
+
+export async function apiRequest<T>(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
 
     const response = await fetch(url, {
@@ -12,14 +27,13 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Request failed with status ${response.status}`);
+        throw new Error(await getErrorMessage(response));
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
 }
 
-export async function apiFormRequest(endpoint: string, formData: FormData) {
+export async function apiFormRequest<T>(endpoint: string, formData: FormData) {
     const url = `${API_BASE_URL}${endpoint}`;
 
     const response = await fetch(url, {
@@ -29,9 +43,8 @@ export async function apiFormRequest(endpoint: string, formData: FormData) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Request failed with status ${response.status}`);
+        throw new Error(await getErrorMessage(response));
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
 }

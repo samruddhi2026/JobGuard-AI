@@ -7,11 +7,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { apiRequest } from "@/lib/api";
 
+interface MatchResponse {
+    match_score?: number;
+    semantic_similarity?: number;
+    experience_match?: string;
+    category_match?: Record<string, number>;
+    advice?: string[];
+    strengths?: string[];
+    weaknesses?: string[];
+    matched_skills?: string[];
+    missing_skills?: string[];
+}
+
 export default function ResumeJobMatch() {
     const [resume, setResume] = useState("");
     const [jd, setJd] = useState("");
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<MatchResponse | null>(null);
 
     const handleMatch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,26 +33,35 @@ export default function ResumeJobMatch() {
         setResult(null);
 
         try {
-            const data = await apiRequest("/ats/match", {
+            const data = await apiRequest<MatchResponse>("/ats/match", {
                 method: "POST",
                 body: JSON.stringify({ resume_text: resume, job_description: jd })
             });
 
             setResult(data);
-            if (data.match_score > 80) {
+            if ((data.match_score ?? 0) > 80) {
                 toast.success("Excellent match found!");
-            } else if (data.match_score > 50) {
+            } else if ((data.match_score ?? 0) > 50) {
                 toast.info("Moderate match. Review the gap analysis.");
             } else {
                 toast.warning("Low match score. Significant skill gaps detected.");
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            toast.error(err.message || "Analysis failed. Please try again.");
+            toast.error(err instanceof Error ? err.message : "Analysis failed. Please try again.");
         } finally {
             setLoading(false);
         }
     };
+
+    const matchScore = result?.match_score ?? 0;
+    const semanticSimilarity = result?.semantic_similarity ?? 0;
+    const categoryMatchEntries = Object.entries(result?.category_match || {});
+    const advice = result?.advice ?? [];
+    const strengths = result?.strengths ?? [];
+    const weaknesses = result?.weaknesses ?? [];
+    const matchedSkills = result?.matched_skills ?? [];
+    const missingSkills = result?.missing_skills ?? [];
 
     return (
         <main className="min-h-screen flex flex-col pb-20">
@@ -63,7 +84,6 @@ export default function ResumeJobMatch() {
                 </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Inputs */}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="rounded-3xl glass p-6 space-y-4">
@@ -95,7 +115,6 @@ export default function ResumeJobMatch() {
                         </button>
                     </div>
 
-                    {/* Results */}
                     <div className="space-y-6">
                         <AnimatePresence mode="wait">
                             {!result && !loading ? (
@@ -118,20 +137,19 @@ export default function ResumeJobMatch() {
                                     <div className="rounded-3xl glass p-8 border-primary/40 text-center relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -mr-16 -mt-16 rounded-full" />
                                         <h3 className="text-muted-foreground text-sm font-bold uppercase tracking-widest mb-2">Match Score</h3>
-                                        <div className="text-6xl font-black gradient-text">{result.match_score}%</div>
+                                        <div className="text-6xl font-black gradient-text">{matchScore}%</div>
                                         <div className="mt-4 flex justify-center gap-2">
-                                            <Badge label={`Similarity: ${result.semantic_similarity}%`} color="blue" />
-                                            <Badge label={`Exp: ${result.experience_match}`} color="green" />
+                                            <Badge label={`Similarity: ${semanticSimilarity}%`} color="blue" />
+                                            <Badge label={`Exp: ${result?.experience_match || "N/A"}`} color="green" />
                                         </div>
                                     </div>
 
-                                    {/* Category Breakdown */}
                                     <div className="rounded-3xl glass p-6">
                                         <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                             <TrendingUp className="w-4 h-4" /> Category Match
                                         </h4>
                                         <div className="space-y-4">
-                                            {Object.entries(result.category_match || {}).map(([cat, score]: [string, any]) => (
+                                            {categoryMatchEntries.map(([cat, score]) => (
                                                 <div key={cat} className="space-y-1">
                                                     <div className="flex justify-between text-xs font-bold">
                                                         <span>{cat}</span>
@@ -149,15 +167,14 @@ export default function ResumeJobMatch() {
                                         </div>
                                     </div>
 
-                                    {/* AI Expert Advice */}
                                     <div className="rounded-3xl glass p-6 border-accent/20 bg-accent/5">
                                         <h4 className="font-bold mb-4 flex items-center gap-2 text-accent">
                                             <Zap className="w-4 h-4" /> AI Expert Advice
                                         </h4>
                                         <ul className="space-y-3">
-                                            {result.advice?.map((adv: string, i: number) => (
+                                            {advice.map((adv, i) => (
                                                 <li key={i} className="text-xs text-muted-foreground leading-relaxed flex gap-2">
-                                                    <span className="text-accent mt-1">•</span> {adv}
+                                                    <span className="text-accent mt-1">-</span> {adv}
                                                 </li>
                                             ))}
                                         </ul>
@@ -169,7 +186,7 @@ export default function ResumeJobMatch() {
                                                 <CheckCircle2 className="w-3 h-3" /> Strengths
                                             </h4>
                                             <ul className="space-y-2">
-                                                {result.strengths?.map((s: string, i: number) => (
+                                                {strengths.map((s, i) => (
                                                     <li key={i} className="text-[10px] text-muted-foreground leading-tight italic">- {s}</li>
                                                 ))}
                                             </ul>
@@ -179,7 +196,7 @@ export default function ResumeJobMatch() {
                                                 <AlertCircle className="w-3 h-3" /> Gaps
                                             </h4>
                                             <ul className="space-y-2">
-                                                {result.weaknesses?.map((w: string, i: number) => (
+                                                {weaknesses.map((w, i) => (
                                                     <li key={i} className="text-[10px] text-muted-foreground leading-tight italic">- {w}</li>
                                                 ))}
                                             </ul>
@@ -191,8 +208,8 @@ export default function ResumeJobMatch() {
                                             <CheckCircle2 className="w-4 h-4" /> Matching Skills
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
-                                            {result.matched_skills?.length > 0 ? (
-                                                result.matched_skills.map((s: string, i: number) => (
+                                            {matchedSkills.length > 0 ? (
+                                                matchedSkills.map((s, i) => (
                                                     <span key={i} className="px-3 py-1 bg-green-500/10 text-green-400 rounded-lg text-xs font-medium border border-green-500/20">{s}</span>
                                                 ))
                                             ) : (
@@ -206,8 +223,8 @@ export default function ResumeJobMatch() {
                                             <AlertCircle className="w-4 h-4" /> Missing Skills
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
-                                            {result.missing_skills?.length > 0 ? (
-                                                result.missing_skills.map((s: string, i: number) => (
+                                            {missingSkills.length > 0 ? (
+                                                missingSkills.map((s, i) => (
                                                     <span key={i} className="px-3 py-1 bg-yellow-500/10 text-yellow-500 rounded-lg text-xs font-medium border border-yellow-500/20">{s}</span>
                                                 ))
                                             ) : (

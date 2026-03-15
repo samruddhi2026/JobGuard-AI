@@ -2,21 +2,52 @@
 
 import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
-import { FileCheck, Upload, CheckCircle2, AlertCircle, RefreshCw, ArrowRight, Zap, Target, FileText, X } from "lucide-react";
+import { FileCheck, Upload, CheckCircle2, AlertCircle, RefreshCw, Zap, Target, FileText, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { apiFormRequest } from "@/lib/api";
+
+interface AtsBreakdown {
+    keyword_score?: number;
+    formatting_score?: number;
+    structure_score?: number;
+    readability_score?: number;
+}
+
+interface AtsResponse {
+    ats_score?: number;
+    breakdown?: AtsBreakdown;
+    suggestions?: string[];
+}
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_FILE_EXTENSIONS = [".pdf", ".docx", ".txt"];
 
 export default function ATSChecker() {
     const [resume, setResume] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<AtsResponse | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+            const selectedFile = e.target.files[0];
+            const extension = selectedFile.name.slice(selectedFile.name.lastIndexOf(".")).toLowerCase();
+
+            if (!ALLOWED_FILE_EXTENSIONS.includes(extension)) {
+                toast.error("Upload a PDF, DOCX, or TXT resume.");
+                e.target.value = "";
+                return;
+            }
+
+            if (selectedFile.size > MAX_FILE_SIZE) {
+                toast.error("Resume file must be 5MB or smaller.");
+                e.target.value = "";
+                return;
+            }
+
+            setFile(selectedFile);
             setResume(""); // Clear text if file is uploaded
         }
     };
@@ -39,20 +70,24 @@ export default function ATSChecker() {
                 formData.append("resume_text", resume);
             }
 
-            const data = await apiFormRequest("/ats/ats-check", formData);
+            const data = await apiFormRequest<AtsResponse>("/ats/ats-check", formData);
             setResult(data);
-            if (data.ats_score > 70) {
+            if ((data.ats_score ?? 0) > 70) {
                 toast.success("Resume analysis complete. Strong score!");
             } else {
                 toast.info("Analysis complete. Check suggestions for improvements.");
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            toast.error(err.message || "Analysis failed. Please try again.");
+            toast.error(err instanceof Error ? err.message : "Analysis failed. Please try again.");
         } finally {
             setLoading(false);
         }
     };
+
+    const score = result?.ats_score ?? 0;
+    const breakdown = result?.breakdown;
+    const suggestions = result?.suggestions ?? [];
 
     return (
         <main className="min-h-screen flex flex-col pb-20">
@@ -182,20 +217,20 @@ export default function ATSChecker() {
                                         <div className="flex items-end justify-between mb-8">
                                             <div>
                                                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-1">Overall ATS Score</h3>
-                                                <div className="text-6xl font-black text-primary">{result.ats_score}</div>
+                                                <div className="text-6xl font-black text-primary">{score}</div>
                                             </div>
                                             <div className="text-right pb-1">
-                                                {result.ats_score >= 80 ? (
+                                                {score >= 80 ? (
                                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-green-500/10 text-green-400 text-xs font-bold ring-1 ring-green-500/20">
                                                         <CheckCircle2 className="w-3 h-3" />
                                                         <span>Excellent</span>
                                                     </div>
-                                                ) : result.ats_score >= 60 ? (
+                                                ) : score >= 60 ? (
                                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold ring-1 ring-blue-500/20">
                                                         <CheckCircle2 className="w-3 h-3" />
                                                         <span>Good Match</span>
                                                     </div>
-                                                ) : result.ats_score >= 40 ? (
+                                                ) : score >= 40 ? (
                                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-yellow-500/10 text-yellow-400 text-xs font-bold ring-1 ring-yellow-500/20">
                                                         <AlertCircle className="w-3 h-3" />
                                                         <span>Average</span>
@@ -203,17 +238,17 @@ export default function ATSChecker() {
                                                 ) : (
                                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold ring-1 ring-red-500/20">
                                                         <AlertCircle className="w-3 h-3" />
-                                                        <span>{result.ats_score === 0 ? "Invalid Input" : "Poor Match"}</span>
+                                                        <span>{score === 0 ? "Invalid Input" : "Poor Match"}</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
-                                            <ScoreMetric label="Keywords" score={result.breakdown.keyword_score} />
-                                            <ScoreMetric label="Formatting" score={result.breakdown.formatting_score} />
-                                            <ScoreMetric label="Structure" score={result.breakdown.structure_score} />
-                                            <ScoreMetric label="Readability" score={result.breakdown.readability_score} />
+                                            <ScoreMetric label="Keywords" score={breakdown?.keyword_score ?? 0} />
+                                            <ScoreMetric label="Formatting" score={breakdown?.formatting_score ?? 0} />
+                                            <ScoreMetric label="Structure" score={breakdown?.structure_score ?? 0} />
+                                            <ScoreMetric label="Readability" score={breakdown?.readability_score ?? 0} />
                                         </div>
                                     </div>
 
@@ -224,12 +259,16 @@ export default function ATSChecker() {
                                             Improvement Suggestions
                                         </h3>
                                         <div className="space-y-4">
-                                            {result.suggestions.map((s: string, i: number) => (
-                                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 text-sm hover:bg-white/10 transition-colors">
-                                                    <div className="p-1 px-2 h-fit rounded-lg bg-white/10 text-[10px] font-bold shrink-0">#{i + 1}</div>
-                                                    <p className="leading-relaxed">{s}</p>
-                                                </div>
-                                            ))}
+                                            {suggestions.length > 0 ? (
+                                                suggestions.map((suggestion, i) => (
+                                                    <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 text-sm hover:bg-white/10 transition-colors">
+                                                        <div className="p-1 px-2 h-fit rounded-lg bg-white/10 text-[10px] font-bold shrink-0">#{i + 1}</div>
+                                                        <p className="leading-relaxed">{suggestion}</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-muted-foreground">No suggestions were returned for this resume yet.</p>
+                                            )}
                                         </div>
                                     </div>
                                 </motion.div>

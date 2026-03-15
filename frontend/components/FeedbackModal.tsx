@@ -56,7 +56,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
       setComment("");
       setName("");
       setEmail("");
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
