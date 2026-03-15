@@ -1,11 +1,14 @@
-const CONFIGURED_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
+const getEnvApiUrl = () => process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
 
 export function getApiBaseUrl() {
-    if (CONFIGURED_API_BASE_URL) {
-        return CONFIGURED_API_BASE_URL;
+    const url = getEnvApiUrl();
+    if (url) {
+        return url;
     }
 
-    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+    // Fallback for local development if env var is missing
+    console.warn("NEXT_PUBLIC_API_URL is not configured. Falling back to http://localhost:8000/api/v1");
+    return "http://localhost:8000/api/v1";
 }
 
 export function buildApiUrl(endpoint: string) {
