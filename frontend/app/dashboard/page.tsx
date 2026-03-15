@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { History, Shield, FileCheck, Search, Zap, ArrowUpRight, TrendingUp, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { buildApiUrl } from "@/lib/api";
 
 interface StatCard {
     label: string;
@@ -36,7 +35,7 @@ export default function Dashboard() {
         setError(null);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/stats/summary`);
+            const response = await fetch(buildApiUrl("/stats/summary"));
             if (!response.ok) throw new Error("Failed to fetch stats");
             const json = await response.json() as DashboardResponse;
             setData(json);

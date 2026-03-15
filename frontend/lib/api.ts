@@ -1,4 +1,28 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const CONFIGURED_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
+
+function isLocalHostname(hostname: string) {
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+export function getApiBaseUrl() {
+    if (CONFIGURED_API_BASE_URL) {
+        return CONFIGURED_API_BASE_URL;
+    }
+
+    if (typeof window !== "undefined") {
+        if (isLocalHostname(window.location.hostname)) {
+            return "http://localhost:8000/api/v1";
+        }
+
+        throw new Error("NEXT_PUBLIC_API_URL is not configured for this deployed frontend.");
+    }
+
+    return "http://localhost:8000/api/v1";
+}
+
+export function buildApiUrl(endpoint: string) {
+    return `${getApiBaseUrl()}${endpoint}`;
+}
 
 async function getErrorMessage(response: Response) {
     const errorData = await response.json().catch(() => null);
@@ -16,7 +40,7 @@ async function getErrorMessage(response: Response) {
 }
 
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
 
     const response = await fetch(url, {
         ...options,
@@ -34,7 +58,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 }
 
 export async function apiFormRequest<T>(endpoint: string, formData: FormData) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
 
     const response = await fetch(url, {
         method: "POST",

@@ -5,8 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Search, Globe, CheckCircle2, Building2, MapPin, ExternalLink, RefreshCw, Briefcase, Info, Zap, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { buildApiUrl } from "@/lib/api";
 
 interface JobListing {
     company: string;
@@ -47,7 +46,7 @@ export default function CareerFinder() {
         setError(null);
 
         try {
-            const baseUrl = `${API_BASE_URL}/scraper/search`;
+            const baseUrl = buildApiUrl("/scraper/search");
             const params = new URLSearchParams({
                 company: company,
                 ...(location ? { location } : {})

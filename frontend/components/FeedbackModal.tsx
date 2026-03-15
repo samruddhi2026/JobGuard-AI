@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X, Star, Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { API_BASE_URL } from "@/lib/api";
+import { buildApiUrl } from "@/lib/api";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/feedback/`, {
+      const response = await fetch(buildApiUrl("/feedback/"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

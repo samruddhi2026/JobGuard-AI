@@ -22,5 +22,6 @@ async def create_feedback(feedback: FeedbackCreate, db: Session = Depends(get_db
         logger.info(f"New feedback received: Rating {feedback.rating}")
         return db_feedback
     except Exception as e:
+        db.rollback()
         logger.error(f"Error saving feedback: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

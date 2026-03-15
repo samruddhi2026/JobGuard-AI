@@ -12,7 +12,7 @@ from app.api.router_ats import router as ats_router
 from app.api.router_scraper import router as scraper_router
 from app.api.router_stats import router as stats_router
 from app.api.router_feedback import router as feedback_router
-from app.db.session import engine, Base
+from app.db.session import engine, Base, check_database_connection
 from app.core import config
 import app.db.models
 
@@ -70,7 +70,26 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": config.PROJECT_NAME}
+    db_status = check_database_connection()
+    overall_status = "healthy" if db_status["connected"] or not db_status["configured"] else "degraded"
+    return {
+        "status": overall_status,
+        "service": config.PROJECT_NAME,
+        "database": db_status
+    }
+
+@app.get("/api/status")
+async def api_status():
+    db_status = check_database_connection()
+    return {
+        "service": config.PROJECT_NAME,
+        "version": "1.1.0",
+        "environment": config.ENV,
+        "debug": config.DEBUG,
+        "database": db_status,
+        "cors_origins": config.BACKEND_CORS_ORIGINS,
+        "api_prefix": config.API_V1_STR
+    }
 
 if __name__ == "__main__":
     logger.info("Starting JobGuard AI Backend...")

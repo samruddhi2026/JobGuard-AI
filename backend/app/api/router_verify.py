@@ -29,4 +29,5 @@ async def verify_job(request: VerifyRequest, db: Session = Depends(get_db)):
         
         return result
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
