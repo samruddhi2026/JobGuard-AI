@@ -11,6 +11,7 @@ from app.api.router_verify import router as verify_router
 from app.api.router_ats import router as ats_router
 from app.api.router_scraper import router as scraper_router
 from app.api.router_stats import router as stats_router
+from app.api.router_feedback import router as feedback_router
 from app.db.session import engine, Base
 from app.core import config
 import app.db.models 
@@ -54,6 +55,7 @@ app.include_router(verify_router, prefix="/api/v1/verify", tags=["Verification"]
 app.include_router(ats_router, prefix="/api/v1/ats", tags=["ATS & Matching"])
 app.include_router(scraper_router, prefix="/api/v1/scraper", tags=["Scraper"])
 app.include_router(stats_router, prefix="/api/v1/stats", tags=["Statistics"])
+app.include_router(feedback_router, prefix="/api/v1/feedback", tags=["Feedback"])
 
 @app.get("/")
 async def root():
