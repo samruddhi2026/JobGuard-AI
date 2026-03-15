@@ -23,9 +23,13 @@ logger.add(sys.stdout, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <leve
 # Configure Rate Limiter
 limiter = Limiter(key_func=get_remote_address)
 
-# Create tables only when DB is configured
+# Create tables only when DB is configured, but don't block API startup if the
+# database is temporarily unavailable.
 if engine is not None:
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as exc:
+        logger.warning(f"Database initialization skipped: {exc}")
 else:
     logger.warning("DATABASE_URL is not set. Skipping database initialization.")
 
