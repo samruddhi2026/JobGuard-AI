@@ -1,4 +1,8 @@
-const getEnvApiUrl = () => process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
+const getEnvApiUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL;
+    if (!url || url === "undefined" || url === "null") return undefined;
+    return url.trim().replace(/\/$/, "");
+};
 
 export function getApiBaseUrl() {
     const url = getEnvApiUrl();
@@ -6,9 +10,12 @@ export function getApiBaseUrl() {
         return url;
     }
 
-    // Fallback for local development if env var is missing
-    console.warn("NEXT_PUBLIC_API_URL is not configured. Falling back to http://localhost:8000/api/v1");
-    return "http://localhost:8000/api/v1";
+    // Fallback for local development
+    if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+        return "http://localhost:8000/api/v1";
+    }
+
+    return "/api/v1"; // Relative path fallback for same-origin or reverse proxy
 }
 
 export function buildApiUrl(endpoint: string) {

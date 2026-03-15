@@ -1,5 +1,6 @@
 FROM node:20-alpine AS builder
 
+
 WORKDIR /app
 
 # Install dependencies
@@ -8,13 +9,12 @@ RUN npm install
 
 # Build application
 COPY . .
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production image
 FROM node:20-alpine AS runner
-
-WORKDIR /app
-
 ENV NODE_ENV=production
 
 COPY --from=builder /app/next.config.ts ./
