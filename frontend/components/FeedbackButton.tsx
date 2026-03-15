@@ -16,7 +16,7 @@ const FeedbackButton = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-50 p-4 rounded-2xl bg-primary text-primary-foreground shadow-2xl shadow-primary/50 flex items-center gap-2 group"
+        className="fixed bottom-4 right-4 z-50 p-3 sm:bottom-8 sm:right-8 sm:p-4 rounded-2xl bg-primary text-primary-foreground shadow-2xl shadow-primary/50 flex items-center gap-2 group"
       >
         <MessageSquarePlus className="w-6 h-6" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 font-bold">

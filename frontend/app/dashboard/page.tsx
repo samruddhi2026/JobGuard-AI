@@ -142,42 +142,44 @@ export default function Dashboard() {
 
                         <div className="rounded-3xl glass border border-border/40 overflow-hidden">
                             {recentActivity.length > 0 ? (
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="border-b border-border/40 bg-white/5">
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Type</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Target</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Score</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground text-right">Time</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border/20">
-                                        {recentActivity.map((act, i) => (
-                                            <tr key={i} className="hover:bg-white/5 transition-colors cursor-pointer group">
-                                                <td className="px-6 py-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-2 h-2 rounded-full ${act.status === "Safe" ? "bg-green-500" : "bg-red-500"
-                                                            }`} />
-                                                        <span className="font-bold text-sm">{act.type}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <div className="text-sm font-medium truncate max-w-[200px]">{act.target}</div>
-                                                    <div className={`text-[10px] uppercase font-bold ${act.status === "Safe" ? "text-green-500" : "text-red-500"
-                                                        }`}>{act.status}</div>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <div className={`inline-flex px-2 py-0.5 rounded-md text-xs font-bold border ${act.score > 70 ? "border-green-500/20 text-green-400" : "border-red-500/20 text-red-400"
-                                                        }`}>{act.score}%</div>
-                                                </td>
-                                                <td className="px-6 py-5 text-right">
-                                                    <div className="text-xs text-muted-foreground mb-1">{act.time}</div>
-                                                    <ArrowUpRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:text-primary transition-colors" />
-                                                </td>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[640px] text-left">
+                                        <thead>
+                                            <tr className="border-b border-border/40 bg-white/5">
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Type</th>
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Target</th>
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Score</th>
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-muted-foreground text-right">Time</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-border/20">
+                                            {recentActivity.map((act, i) => (
+                                                <tr key={i} className="hover:bg-white/5 transition-colors cursor-pointer group">
+                                                    <td className="px-6 py-5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-2 h-2 rounded-full ${act.status === "Safe" ? "bg-green-500" : "bg-red-500"
+                                                                }`} />
+                                                            <span className="font-bold text-sm">{act.type}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <div className="text-sm font-medium truncate max-w-[200px]">{act.target}</div>
+                                                        <div className={`text-[10px] uppercase font-bold ${act.status === "Safe" ? "text-green-500" : "text-red-500"
+                                                            }`}>{act.status}</div>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <div className={`inline-flex px-2 py-0.5 rounded-md text-xs font-bold border ${act.score > 70 ? "border-green-500/20 text-green-400" : "border-red-500/20 text-red-400"
+                                                            }`}>{act.score}%</div>
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right">
+                                                        <div className="text-xs text-muted-foreground mb-1">{act.time}</div>
+                                                        <ArrowUpRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:text-primary transition-colors" />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             ) : (
                                 <div className="p-20 text-center text-muted-foreground">
                                     No recent activity recorded yet. Start scanning to see data!

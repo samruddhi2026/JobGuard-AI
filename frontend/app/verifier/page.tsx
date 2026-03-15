@@ -92,12 +92,12 @@ export default function JobVerifier() {
                                     required
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
-                                    className="w-full pl-14 pr-40 py-6 rounded-3xl glass text-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:text-muted-foreground/70"
+                                    className="w-full pl-14 pr-6 md:pr-40 py-6 rounded-3xl glass text-base sm:text-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:text-muted-foreground/70"
                                 />
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="absolute right-3 top-3 bottom-3 px-8 rounded-2xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
+                                    className="mt-4 md:mt-0 md:absolute md:right-3 md:top-3 md:bottom-3 w-full md:w-auto px-8 py-3 md:py-0 rounded-2xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {loading ? "Analyzing..." : "Analyze Integrity"}
                                 </button>

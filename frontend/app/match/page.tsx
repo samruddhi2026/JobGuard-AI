@@ -180,7 +180,7 @@ export default function ResumeJobMatch() {
                                         </ul>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="rounded-3xl glass p-6 border-green-500/20">
                                             <h4 className="font-bold mb-3 text-xs uppercase text-green-400 flex items-center gap-2">
                                                 <CheckCircle2 className="w-3 h-3" /> Strengths

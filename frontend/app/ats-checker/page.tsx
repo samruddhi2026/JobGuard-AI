@@ -244,7 +244,7 @@ export default function ATSChecker() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <ScoreMetric label="Keywords" score={breakdown?.keyword_score ?? 0} />
                                             <ScoreMetric label="Formatting" score={breakdown?.formatting_score ?? 0} />
                                             <ScoreMetric label="Structure" score={breakdown?.structure_score ?? 0} />

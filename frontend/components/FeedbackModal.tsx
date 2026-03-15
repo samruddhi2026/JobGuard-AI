@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Star, Send, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { API_BASE_URL } from "@/lib/api";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -31,8 +32,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
     setIsSubmitting(true);
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-      const response = await fetch(`${apiBaseUrl}/feedback/`, {
+      const response = await fetch(`${API_BASE_URL}/feedback/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +46,11 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit feedback");
+        const errorData = await response.json().catch(() => null);
+        const message = errorData && typeof errorData === "object" && "detail" in errorData && typeof errorData.detail === "string"
+          ? errorData.detail
+          : "Failed to submit feedback";
+        throw new Error(message);
       }
 
       toast.success("Thank you for your feedback!");
@@ -56,8 +60,8 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
       setComment("");
       setName("");
       setEmail("");
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +89,7 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground ml-1">Name (Optional)</label>
                     <input
