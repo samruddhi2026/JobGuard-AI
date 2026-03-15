@@ -9,17 +9,10 @@ API_V1_STR = "/api/v1"
 # Database
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI")
 
-if not DATABASE_URL:
-    raise ValueError(
-        "DATABASE_URL environment variable is not set. "
-        "Set DATABASE_URL or SQLALCHEMY_DATABASE_URI in the backend service environment."
-    )
-
-if DATABASE_URL.startswith("postgres://"):
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-print("Connected to PostgreSQL database configuration")
-
+DATABASE_CONFIGURED = bool(DATABASE_URL)
 SQLALCHEMY_DATABASE_URI = DATABASE_URL
 
 # Security & CORS

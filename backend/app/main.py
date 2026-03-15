@@ -14,7 +14,7 @@ from app.api.router_stats import router as stats_router
 from app.api.router_feedback import router as feedback_router
 from app.db.session import engine, Base
 from app.core import config
-import app.db.models 
+import app.db.models
 
 # Configure Loguru
 logger.remove()
@@ -23,8 +23,11 @@ logger.add(sys.stdout, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <leve
 # Configure Rate Limiter
 limiter = Limiter(key_func=get_remote_address)
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Create tables only when DB is configured
+if engine is not None:
+    Base.metadata.create_all(bind=engine)
+else:
+    logger.warning("DATABASE_URL is not set. Skipping database initialization.")
 
 app = FastAPI(
     title=config.PROJECT_NAME,
