@@ -31,7 +31,8 @@ const FeedbackModal = ({ isOpen, onClose }: FeedbackModalProps) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://localhost:8000/api/v1/feedback/", {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const response = await fetch(`${apiBaseUrl}/feedback/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

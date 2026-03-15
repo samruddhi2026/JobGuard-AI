@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import { LayoutDashboard, History, Shield, FileCheck, Search, Zap, ArrowUpRight, TrendingUp, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+
 export default function Dashboard() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch("http://localhost:8000/api/v1/stats/summary");
+                const response = await fetch(`${API_BASE_URL}/stats/summary`);
                 if (!response.ok) throw new Error("Failed to fetch stats");
                 const json = await response.json();
                 setData(json);
