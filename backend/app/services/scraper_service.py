@@ -278,27 +278,40 @@ class ScraperService:
         return valid_links[:8]
 
     @staticmethod
-    def _normalize_location_match(search_loc: str, target_loc: str) -> bool:
+    def _normalize_location_match(search_loc: str, target_loc: str, allow_remote: bool = False) -> bool:
         """Intelligently matches search location against ATS location strings."""
         if not search_loc: return True
         s = search_loc.lower().strip()
         t = target_loc.lower().strip()
+
+        # Remote always matches if the caller explicitly opts in
+        if allow_remote and "remote" in t:
+            return True
         
         # Exact or substring match
         if s in t: return True
         
         # Alias Mapping
         aliases = {
-            "usa": ["united states", " us ", " u.s.", "america", "ny", "ca", "sf", "sfbay", "washington", "austin", "texas"],
-            "us": ["united states", "usa", " u.s.", "america"],
-            "india": ["bengaluru", "bangalore", "mumbai", "delhi", "gurgaon", "pune", "hyderabad", "chennai", "noida"],
-            "uk": ["united kingdom", "london", "manchester", "britain", "england"],
-            "germany": ["berlin", "munich", "deutschland", "hamburg", "frankfurt"]
+            "usa": ["united states", "u.s.", "america", "new york", "san francisco", "california", "texas", "seattle", "chicago", "boston", "austin"],
+            "us": ["united states", "usa", "u.s.", "america"],
+            "india": ["bengaluru", "bangalore", "mumbai", "delhi", "gurgaon", "gurugram", "pune", "hyderabad", "chennai", "noida", "kolkata"],
+            "uk": ["united kingdom", "london", "manchester", "birmingham", "britain", "england", "scotland", "glasgow"],
+            "germany": ["berlin", "munich", "münchen", "deutschland", "hamburg", "frankfurt", "cologne", "köln", "stuttgart"],
+            "canada": ["toronto", "vancouver", "montreal", "calgary", "ottawa"],
+            "australia": ["sydney", "melbourne", "brisbane", "perth", "canberra"],
+            "singapore": ["sg", "singapur"],
+            "france": ["paris", "lyon", "marseille"],
+            "netherlands": ["amsterdam", "rotterdam", "the hague", "eindhoven"],
+            "brazil": ["são paulo", "sao paulo", "rio de janeiro", "brasília"],
         }
-        
-        if s in aliases:
-            if any(alias in t for alias in aliases[s]):
-                return True
+
+        for key, variants in aliases.items():
+            if s == key or s in variants:
+                # check target against all variants of this alias group
+                all_terms = [key] + variants
+                if any(term in t for term in all_terms):
+                    return True
         
         return False
 
@@ -320,7 +333,7 @@ class ScraperService:
                         loc_data = j.get("categories", {}).get("location", "Remote")
                         
                         role_match = not query or is_company_search or query.lower() in title.lower() or all(word in title.lower() for word in query.lower().split())
-                        loc_match = ScraperService._normalize_location_match(location, loc_data) or "remote" in loc_data.lower()
+                        loc_match = ScraperService._normalize_location_match(location, loc_data, allow_remote=True)
                         
                         if role_match and loc_match:
                             desc_text = j.get("descriptionPlain", "")
@@ -375,9 +388,9 @@ class ScraperService:
                         
                         # Match logic: if they searched for the company, return all jobs. Otherwise, match role.
                         role_match = not query or is_company_search or query.lower() in title.lower() or all(word in title.lower() for word in query.lower().split())
-                        
+
                         # Location logic: match if location is provided using normalization
-                        loc_match = ScraperService._normalize_location_match(location, loc_data) or "remote" in loc_data.lower()
+                        loc_match = ScraperService._normalize_location_match(location, loc_data, allow_remote=True)
                         
                         if role_match and loc_match:
                             raw_content = j.get("content", "")
@@ -415,57 +428,258 @@ class ScraperService:
             logger.debug(f"Failed to fetch {board}: {e}")
         return results
 
+    # ---------------------------------------------------------------------------
+    # Location-aware public job feed integrations
+    # ---------------------------------------------------------------------------
+
+    @staticmethod
+    async def _fetch_muse_jobs(session: aiohttp.ClientSession, query: str, location: str = None) -> List[Dict]:
+        """Fetches jobs from The Muse API – fully location-aware."""
+        results = []
+        try:
+            params = {"page": 0, "content": "true", "level": ""}
+            if location:
+                params["location"] = location
+            if query:
+                params["category"] = query  # The Muse uses category/search terms
+
+            url = "https://www.themuse.com/api/public/jobs"
+            async with session.get(url, params=params, timeout=10) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    for j in data.get("results", []):
+                        title = j.get("name", "")
+                        company = j.get("company", {}).get("name", "Unknown")
+                        locs = j.get("locations", [])
+                        loc_str = ", ".join(l.get("name", "") for l in locs) or "Remote"
+                        job_url = j.get("refs", {}).get("landing_page", "")
+                        
+                        # Role keyword match
+                        role_match = not query or any(w in title.lower() for w in query.lower().split())
+                        if not role_match:
+                            continue
+
+                        results.append({
+                            "company": company,
+                            "role": title,
+                            "location": loc_str[:60],
+                            "link": job_url,
+                            "verified": True,
+                            "source": "The Muse",
+                            "posted": "Active",
+                            "description": j.get("contents", "Click Apply Now to view the official posting.")[:600],
+                            "experience": "See listing",
+                            "job_type": j.get("type", "Full-time")
+                        })
+                        if len(results) >= 15:
+                            break
+                else:
+                    logger.warning(f"The Muse API returned status {resp.status}")
+        except Exception as e:
+            logger.warning(f"The Muse fetch failed: {e}")
+        return results
+
+    @staticmethod
+    async def _fetch_remotive_jobs(session: aiohttp.ClientSession, query: str, location: str = None) -> List[Dict]:
+        """Fetches remote-friendly jobs from Remotive API (free, no key)."""
+        results = []
+        try:
+            params = {"limit": 20}
+            if query:
+                params["search"] = query
+
+            url = "https://remotive.com/api/remote-jobs"
+            async with session.get(url, params=params, timeout=10) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    for j in data.get("jobs", []):
+                        title = j.get("title", "")
+                        loc_str = j.get("candidate_required_location", "Worldwide")
+
+                        # Location filter: if user specified a location, match it or accept "worldwide"
+                        if location:
+                            loc_lower = loc_str.lower()
+                            loc_pass = (
+                                "worldwide" in loc_lower
+                                or "anywhere" in loc_lower
+                                or ScraperService._normalize_location_match(location, loc_str)
+                            )
+                            if not loc_pass:
+                                continue
+
+                        results.append({
+                            "company": j.get("company_name", "Unknown"),
+                            "role": title,
+                            "location": loc_str[:60],
+                            "link": j.get("url", ""),
+                            "verified": True,
+                            "source": "Remotive",
+                            "posted": j.get("publication_date", "Active")[:10],
+                            "description": j.get("description", "")[:600] if j.get("description") else "Click Apply Now.",
+                            "experience": "See listing",
+                            "job_type": j.get("job_type", "Full-time")
+                        })
+                        if len(results) >= 15:
+                            break
+                else:
+                    logger.warning(f"Remotive API returned status {resp.status}")
+        except Exception as e:
+            logger.warning(f"Remotive fetch failed: {e}")
+        return results
+
+    @staticmethod
+    async def _fetch_arbeitnow_jobs(session: aiohttp.ClientSession, query: str, location: str = None) -> List[Dict]:
+        """Fetches jobs from Arbeit Now (good European/global coverage, free API)."""
+        results = []
+        try:
+            url = "https://www.arbeitnow.com/api/job-board-api"
+            async with session.get(url, timeout=10) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    for j in data.get("data", []):
+                        title = j.get("title", "")
+                        loc_str = j.get("location", "Remote")
+                        tags = " ".join(j.get("tags", []))
+
+                        # Role filter
+                        role_match = not query or any(w in title.lower() or w in tags.lower() for w in query.lower().split())
+                        if not role_match:
+                            continue
+
+                        # Location filter
+                        if location:
+                            loc_pass = (
+                                "remote" in loc_str.lower()
+                                or ScraperService._normalize_location_match(location, loc_str)
+                            )
+                            if not loc_pass:
+                                continue
+
+                        results.append({
+                            "company": j.get("company_name", "Unknown"),
+                            "role": title,
+                            "location": loc_str[:60],
+                            "link": j.get("url", ""),
+                            "verified": True,
+                            "source": "Arbeit Now",
+                            "posted": j.get("created_at", "Active"),
+                            "description": j.get("description", "Click Apply Now.")[:600],
+                            "experience": "See listing",
+                            "job_type": "Full-time"
+                        })
+                        if len(results) >= 10:
+                            break
+                else:
+                    logger.warning(f"Arbeit Now API returned {resp.status}")
+        except Exception as e:
+            logger.warning(f"Arbeit Now fetch failed: {e}")
+        return results
+
     @staticmethod
     async def fetch_job_listings(query: str, location: str = None) -> List[Dict]:
         """
-        Premium Corporate ATS Aggregator (Greenhouse + Lever).
+        Multi-source job aggregator:
+          1. The Muse API       – global, location-aware
+          2. Remotive API       – remote-friendly global jobs
+          3. Arbeit Now API     – European + global jobs
+          4. Greenhouse ATS     – corporate boards (global & regional companies)
+          5. Lever ATS          – corporate boards (global & regional companies)
         """
         query_clean = query.lower().strip()
-        logger.info(f"Initiating Premium ATS aggregation for: {query} in {location or 'anywhere'}")
-        
-        # Curated list of top-tier companies
-        GH_BOARDS = [
-            'stripe', 'discord', 'airbnb', 'dropbox', 'figma', 'reddit', 
-            'lyft', 'square', 'twilio', 'coinbase', 'plaid', 'doordash', 
-            'gusto', 'databricks', 'roblox', 'pinterest', 'instacart',
-            'slack', 'github', 'zoom', 'robinhood', 'datadog', 'okta',
-            'asana', 'atlassian', 'gitlab', 'postman', 'razorpay', 'cred',
-            'shopify', 'snapchat', 'notion', 'hubspot', 'box', 'klarna',
-            'bolt', 'monzo', 'revolut', 'chime', 'wealthfront'
+        logger.info(f"Fetching jobs for: '{query}' in '{location or 'anywhere'}'")
+
+        # -----------------------------------------------------------------------
+        # ATS Boards – now globally diverse
+        # -----------------------------------------------------------------------
+        # Global / US companies
+        GH_BOARDS_GLOBAL = [
+            'stripe', 'discord', 'airbnb', 'dropbox', 'figma', 'reddit',
+            'lyft', 'twilio', 'coinbase', 'plaid', 'doordash', 'gusto',
+            'databricks', 'roblox', 'pinterest', 'instacart', 'github',
+            'zoom', 'robinhood', 'datadog', 'okta', 'asana', 'atlassian',
+            'gitlab', 'postman', 'shopify', 'snapchat', 'notion', 'hubspot',
+            'box', 'klarna', 'bolt', 'monzo', 'revolut', 'chime',
         ]
-        
+        # India-focused / strong India presence
+        GH_BOARDS_INDIA = [
+            'razorpay', 'cred', 'olamoney', 'meesho', 'groww', 'zepto',
+            'browserstack', 'freshworks', 'zoho', 'chargebee', 'postman',
+            'nilenso', 'setu', 'smallcase', 'moengage',
+        ]
+        # Europe-focused
+        GH_BOARDS_EU = [
+            'personio', 'n26', 'sumup', 'commercetools', 'celonis',
+            'contentful', 'adjust', 'delivery-hero', 'gorillas', 'taxfix',
+            'babbel', 'ecosia', 'omio', 'flixbus',
+        ]
+        # UK-focused
+        GH_BOARDS_UK = [
+            'monzo', 'checkout', 'depop', 'wise', 'cazoo', 'onfido',
+            'bulb', 'edited', 'peak', 'yapily',
+        ]
+
         LEVER_BOARDS = [
-            'netflix', 'palantir', 'twitter', 'lever', 'digitalocean', 
-            'fullstory', 'framer', 'benchling', 'anduril', 'motive',
-            'elastic', 'mongodb', 'snowflake', 'confluent', 'hashicorp'
+            'netflix', 'palantir', 'digitalocean', 'fullstory', 'framer',
+            'benchling', 'anduril', 'motive', 'elastic', 'mongodb',
+            'snowflake', 'confluent', 'hashicorp',
+            # Additional global/EU Lever boards
+            'personio', 'loom', 'canva', 'airtable', 'deel',
         ]
-        
+
+        # Pick ATS boards based on location hint for efficiency
+        loc_lower = (location or "").lower()
+        if any(kw in loc_lower for kw in ["india", "bangalore", "bengaluru", "mumbai", "delhi", "pune", "hyderabad"]):
+            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_INDIA
+        elif any(kw in loc_lower for kw in ["uk", "london", "manchester", "britain", "england"]):
+            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_UK
+        elif any(kw in loc_lower for kw in ["germany", "berlin", "france", "paris", "europe", "netherlands", "amsterdam"]):
+            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_EU
+        else:
+            GH_BOARDS = GH_BOARDS_GLOBAL
+
         all_results = []
-        
+
         async with aiohttp.ClientSession(headers=ScraperService.get_headers()) as session:
-            # Create tasks for both Greenhouse and Lever
+            # Run all sources concurrently
+            muse_task = ScraperService._fetch_muse_jobs(session, query_clean, location)
+            remotive_task = ScraperService._fetch_remotive_jobs(session, query_clean, location)
+            arbeitnow_task = ScraperService._fetch_arbeitnow_jobs(session, query_clean, location)
             gh_tasks = [ScraperService._fetch_greenhouse_board(session, board, query_clean, location) for board in GH_BOARDS]
             lever_tasks = [ScraperService._fetch_lever_board(session, board, query_clean, location) for board in LEVER_BOARDS]
-            
-            board_results = await asyncio.gather(*(gh_tasks + lever_tasks), return_exceptions=True)
-            
-            for index, res in enumerate(board_results):
+
+            all_tasks = [muse_task, remotive_task, arbeitnow_task] + gh_tasks + lever_tasks
+            all_task_names = ["The Muse", "Remotive", "Arbeit Now"] + GH_BOARDS + LEVER_BOARDS
+
+            task_results = await asyncio.gather(*all_tasks, return_exceptions=True)
+
+            for idx, res in enumerate(task_results):
                 if isinstance(res, list):
                     all_results.extend(res)
                 else:
-                    # Log failure but continue
-                    board_name = (GH_BOARDS + LEVER_BOARDS)[index]
-                    logger.debug(f"Error fetching board {board_name}: {res}")
-        
+                    logger.debug(f"Source '{all_task_names[idx]}' failed: {res}")
+
         if not all_results:
-             logger.info(f"No ATS matches for '{query}' in {location}.")
+            logger.info(f"No job matches found for '{query}' in '{location}'.")
         else:
-             # Sort by relevance (basic: query in title) then shuffle
-             all_results.sort(key=lambda x: query_clean in x['role'].lower(), reverse=True)
-             random.shuffle(all_results)
-             
-        # Return top 20 highest quality matches to satisfy the '10-15' requirement
-        return all_results[:20]
+            # De-duplicate by link
+            seen_links = set()
+            unique_results = []
+            for j in all_results:
+                link = j.get("link", "")
+                if link and link not in seen_links:
+                    seen_links.add(link)
+                    unique_results.append(j)
+            all_results = unique_results
+
+            # Sort: exact role matches first, then by source priority
+            source_priority = {"The Muse": 0, "Remotive": 1, "Arbeit Now": 2, "Greenhouse ATS": 3, "Lever ATS": 4}
+            all_results.sort(key=lambda x: (
+                0 if query_clean in x["role"].lower() else 1,
+                source_priority.get(x.get("source", ""), 5)
+            ))
+
+        logger.info(f"Returning {min(len(all_results), 25)} results for '{query}' in '{location or 'anywhere'}'")
+        return all_results[:25]
 
     @staticmethod
     def get_official_career_page(company: str, role: str = "") -> str:
