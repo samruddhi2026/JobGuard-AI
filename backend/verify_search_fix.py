@@ -39,10 +39,20 @@ async def test_relevance_and_variety():
     query_words = query.lower().split()
     for r in results1:
         role_lower = r['role'].lower()
+        loc_lower = r['location'].lower()
+        
+        # Keyword relevance
         if not all(w in role_lower for w in query_words):
-             # Some sources like Arbeit Now might match in tags, let's check that too if possible 
-             # but our stricter logic should have handled it.
              logger.warning(f"Relevance warning: '{r['role']}' does not contain all query words.")
+        
+        # Location relevance (CRITICAL FIX)
+        if "pune" not in loc_lower and "remote" not in loc_lower and "india" != loc_lower:
+            if "bengaluru" in loc_lower or "bangalore" in loc_lower:
+                logger.error(f"CITY MATCH FAILURE: Search was for 'Pune' but got '{r['location']}' from {r['company']}")
+            else:
+                logger.warning(f"Location mismatch: Search was for 'Pune' but got '{r['location']}'")
+        else:
+            logger.success(f"Location match: '{r['location']}' is valid for 'Pune' search.")
 
 if __name__ == "__main__":
     asyncio.run(test_relevance_and_variety())

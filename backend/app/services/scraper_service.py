@@ -307,10 +307,15 @@ class ScraperService:
         }
 
         for key, variants in aliases.items():
-            if s == key or s in variants:
-                # check target against all variants of this alias group
+            if s == key:
+                # If search is a country (e.g. "india"), match any city in that country
                 all_terms = [key] + variants
                 if any(term in t for term in all_terms):
+                    return True
+            elif s in variants:
+                # If search is a specific city (e.g. "pune"), ONLY match that city,
+                # the parent country name, or "remote". Do NOT match other cities.
+                if s in t or key in t:
                     return True
         
         return False
@@ -600,32 +605,37 @@ class ScraperService:
             'databricks', 'roblox', 'pinterest', 'instacart', 'github',
             'zoom', 'robinhood', 'datadog', 'okta', 'asana', 'atlassian',
             'gitlab', 'postman', 'shopify', 'snapchat', 'notion', 'hubspot',
-            'box', 'klarna', 'bolt', 'monzo', 'revolut', 'chime',
+            'box', 'klarna', 'bolt', 'monzo', 'revolut', 'chime', 'affirm',
+            'afterpay', 'brex', 'checkout', 'circle', 'confluent', 'elastic'
         ]
         # India-focused / strong India presence
         GH_BOARDS_INDIA = [
             'razorpay', 'cred', 'olamoney', 'meesho', 'groww', 'zepto',
             'browserstack', 'freshworks', 'zoho', 'chargebee', 'postman',
-            'nilenso', 'setu', 'smallcase', 'moengage',
+            'nilenso', 'setu', 'smallcase', 'moengage', 'unacademy', 'upgrad',
+            'swiggy', 'zomato', 'ola', 'bigbasket', 'curefit', 'dream11',
+            'phonepe', 'urbancompany', 'nykaa', 'paytm', 'byjus', 'oyo'
         ]
         # Europe-focused
         GH_BOARDS_EU = [
             'personio', 'n26', 'sumup', 'commercetools', 'celonis',
             'contentful', 'adjust', 'delivery-hero', 'gorillas', 'taxfix',
-            'babbel', 'ecosia', 'omio', 'flixbus',
+            'babbel', 'ecosia', 'omio', 'flixbus', 'blablacar', 'deezer',
+            'ledger', 'backmarket', 'mirakl', 'qonto', 'alan'
         ]
         # UK-focused
         GH_BOARDS_UK = [
             'monzo', 'checkout', 'depop', 'wise', 'cazoo', 'onfido',
-            'bulb', 'edited', 'peak', 'yapily',
+            'bulb', 'edited', 'peak', 'yapily', 'starlingbank', 'revolut',
+            'deliveroo', 'darktrace', 'graphcore', 'oaknorth'
         ]
 
         LEVER_BOARDS = [
             'netflix', 'palantir', 'digitalocean', 'fullstory', 'framer',
             'benchling', 'anduril', 'motive', 'elastic', 'mongodb',
-            'snowflake', 'confluent', 'hashicorp',
-            # Additional global/EU Lever boards
-            'personio', 'loom', 'canva', 'airtable', 'deel',
+            'snowflake', 'confluent', 'hashicorp', 'personio', 'loom',
+            'canva', 'airtable', 'deel', 'clari', 'ironclad', 'medallia',
+            'pendo', 'snyk', 'unity', 'webflow', 'zapier'
         ]
 
         # Pick ATS boards based on location hint for efficiency
