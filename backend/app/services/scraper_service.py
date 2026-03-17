@@ -454,8 +454,9 @@ class ScraperService:
                         loc_str = ", ".join(l.get("name", "") for l in locs) or "Remote"
                         job_url = j.get("refs", {}).get("landing_page", "")
                         
-                        # Role keyword match
-                        role_match = not query or any(w in title.lower() for w in query.lower().split())
+                        # Role keyword match: stricter
+                        query_words = query.lower().split()
+                        role_match = not query or all(w in title.lower() for w in query_words)
                         if not role_match:
                             continue
 
@@ -467,7 +468,7 @@ class ScraperService:
                             "verified": True,
                             "source": "The Muse",
                             "posted": "Active",
-                            "description": j.get("contents", "Click Apply Now to view the official posting.")[:600],
+                            "description": BeautifulSoup(j.get("contents", ""), "html.parser").get_text(separator=" ").strip()[:600],
                             "experience": "See listing",
                             "job_type": j.get("type", "Full-time")
                         })
@@ -515,7 +516,7 @@ class ScraperService:
                             "verified": True,
                             "source": "Remotive",
                             "posted": j.get("publication_date", "Active")[:10],
-                            "description": j.get("description", "")[:600] if j.get("description") else "Click Apply Now.",
+                            "description": BeautifulSoup(j.get("description", ""), "html.parser").get_text(separator=" ").strip()[:600] if j.get("description") else "Click Apply Now.",
                             "experience": "See listing",
                             "job_type": j.get("job_type", "Full-time")
                         })
@@ -541,8 +542,9 @@ class ScraperService:
                         loc_str = j.get("location", "Remote")
                         tags = " ".join(j.get("tags", []))
 
-                        # Role filter
-                        role_match = not query or any(w in title.lower() or w in tags.lower() for w in query.lower().split())
+                        # Role keyword match: stricter (all words in query must exist in title or tags)
+                        query_words = query.lower().split()
+                        role_match = not query or all(w in title.lower() or w in tags.lower() for w in query_words)
                         if not role_match:
                             continue
 
@@ -563,7 +565,7 @@ class ScraperService:
                             "verified": True,
                             "source": "Arbeit Now",
                             "posted": j.get("created_at", "Active"),
-                            "description": j.get("description", "Click Apply Now.")[:600],
+                            "description": BeautifulSoup(j.get("description", ""), "html.parser").get_text(separator=" ").strip()[:600],
                             "experience": "See listing",
                             "job_type": "Full-time"
                         })
@@ -629,13 +631,17 @@ class ScraperService:
         # Pick ATS boards based on location hint for efficiency
         loc_lower = (location or "").lower()
         if any(kw in loc_lower for kw in ["india", "bangalore", "bengaluru", "mumbai", "delhi", "pune", "hyderabad"]):
-            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_INDIA
+            GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_INDIA
         elif any(kw in loc_lower for kw in ["uk", "london", "manchester", "britain", "england"]):
-            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_UK
+            GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_UK
         elif any(kw in loc_lower for kw in ["germany", "berlin", "france", "paris", "europe", "netherlands", "amsterdam"]):
-            GH_BOARDS = GH_BOARDS_GLOBAL[:15] + GH_BOARDS_EU
+            GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_EU
         else:
             GH_BOARDS = GH_BOARDS_GLOBAL
+
+        # Shuffle boards to provide variety on repeated queries
+        random.shuffle(GH_BOARDS)
+        random.shuffle(LEVER_BOARDS)
 
         all_results = []
 
