@@ -237,7 +237,8 @@ class ScraperService:
         This avoids headless browser blocking and is significantly faster.
         """
         links = set()
-        search_query = f'"{query}" site:lever.co OR site:greenhouse.io OR site:workable.com OR site:smartrecruiters.com OR site:breezy.hr OR site:jobs.ashbyhq.com'
+        # Expand search range to find jobs on any career site or official page
+        search_query = f'"{query}" (intitle:jobs OR intitle:careers OR inurl:careers OR inurl:jobs) -inurl:blog -inurl:support'
         
         try:
             async with aiohttp.ClientSession(headers=ScraperService.get_headers()) as session:
@@ -246,18 +247,28 @@ class ScraperService:
                     if resp.status == 200:
                         text = await resp.text()
                         soup = BeautifulSoup(text, 'html.parser')
-                        for a in soup.find_all('a', class_='result__url'):
+                        # Robust link discovery
+                        found_links = soup.find_all('a', class_='result__a') or soup.find_all('a', class_='result__url')
+                        
+                        for a in found_links:
                             href = a.get('href')
-                            if not href: continue
+                            if not href or 'duckduckgo.com/y.js' in href: continue
                             
+                            # Clean proxy redirects
+                            if 'uddg=' in href:
+                                try:
+                                    actual_url = urllib.parse.parse_qs(urllib.parse.urlparse(href).query).get('uddg', [None])[0]
+                                    if actual_url: href = actual_url
+                                except: pass
+
                             href_lower = href.lower()
-                            if ('lever.co' in href_lower or 
-                                'greenhouse.io' in href_lower or 
-                                'workable.com' in href_lower or 
-                                'smartrecruiters.com' in href_lower or 
-                                'breezy.hr' in href_lower or
-                                'ashbyhq.com' in href_lower):
+                            # Priority career domains
+                            if any(dm in href_lower for dm in ['lever.co', 'greenhouse.io', 'workable.com', 'smartrecruiters.com', 'breezy.hr', 'ashbyhq.com']):
                                 links.add(href.split('?')[0].rstrip('/'))
+                            # Also allow any high-potential job page
+                            elif any(dm in href_lower for dm in ['careers.', 'jobs.', '/jobs/', '/careers/']):
+                                if not any(ex in href_lower for ex in ['news', 'blog', 'support', 'wikipedia', 'youtube']):
+                                    links.add(href.split('?')[0].rstrip('/'))
                     else:
                         logger.warning(f"DuckDuckGo HTML returned status {resp.status}")
         except Exception as e:
@@ -284,11 +295,7 @@ class ScraperService:
         s = search_loc.lower().strip()
         t = target_loc.lower().strip()
 
-        # Remote always matches if the caller explicitly opts in
-        if allow_remote and "remote" in t:
-            return True
-        
-        # Exact or substring match
+        # Exact or substring match (e.g. "dubai" in "dubai, mirdif")
         if s in t: return True
         
         # Alias Mapping
@@ -304,21 +311,101 @@ class ScraperService:
             "france": ["paris", "lyon", "marseille"],
             "netherlands": ["amsterdam", "rotterdam", "the hague", "eindhoven"],
             "brazil": ["são paulo", "sao paulo", "rio de janeiro", "brasília"],
+            "uae": ["dubai", "abu dhabi", "sharjah", "ajman", "united arab emirates", "emirates", "qatar", "doha", "oman", "muscat"],
+            "saudi arabia": ["riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "saudi"],
+            "japan": ["tokyo", "osaka", "kyoto", "yokohama", "nagoya"],
         }
 
+        # Parent Country Check
+        s_country = None
         for key, variants in aliases.items():
-            if s == key:
-                # If search is a country (e.g. "india"), match any city in that country
-                all_terms = [key] + variants
-                if any(term in t for term in all_terms):
+            if s == key or s in variants:
+                s_country = key
+                break
+        
+        # If we found a group for the search location
+        if s_country:
+            # Match 1: Search is country, target contains country or any of its cities
+            if s == s_country:
+                if s in t or any(v in t for v in aliases[s_country]):
                     return True
-            elif s in variants:
-                # If search is a specific city (e.g. "pune"), ONLY match that city,
-                # the parent country name, or "remote". Do NOT match other cities.
-                if s in t or key in t:
+            # Match 2: Search is city, target contains city OR target is exactly the country
+            else:
+                if s in t or t == s_country:
                     return True
+
+        # Remote logic: only allow if it's worldwide/anywhere 
+        # OR if it matches the region of the search location.
+        if allow_remote and "remote" in t:
+            if "worldwide" in t or "anywhere" in t:
+                return True
+            
+            # Regional remote matching
+            regions = {
+                "emea": ["uae", "uk", "germany", "france", "netherlands", "europe", "india", "middle east", "africa"],
+                "apac": ["india", "australia", "singapore", "japan", "asia", "china"],
+                "americas": ["usa", "us", "canada", "brazil", "america", "latin america"],
+            }
+            
+            # Find search region
+            s_region = None
+            if s_country:
+                for reg, countries in regions.items():
+                    if s_country in countries:
+                        s_region = reg
+                        break
+            
+            if s_region:
+                # If target mentions the region (e.g. "Remote, EMEA")
+                if s_region in t:
+                    return True
+                # If target mentions a country in the same region
+                for country in regions[s_region]:
+                    if country in t:
+                        return True
         
         return False
+
+    @staticmethod
+    async def _fetch_from_discovery(session: aiohttp.ClientSession, query: str, location: str = None) -> List[Dict]:
+        """Discovers and scrapes jobs in real-time from various career sites."""
+        search_query = f"{query} {location}" if location else query
+        links = await ScraperService.discover_jobs(search_query)
+        
+        results = []
+        if not links:
+            return results
+            
+        # Scrape discovered links in parallel
+        scrape_tasks = [ScraperService.extract_job_details(link) for link in links[:6]]
+        scrape_results = await asyncio.gather(*scrape_tasks, return_exceptions=True)
+        
+        for idx, res in enumerate(scrape_results):
+            if isinstance(res, dict) and res.get("description") != "N/A":
+                url = links[idx]
+                # Try to extract company from URL
+                domain = urllib.parse.urlparse(url).netloc
+                company_parts = domain.replace('www.', '').split('.')
+                company = company_parts[0].title() if company_parts else "Unknown"
+                
+                loc_data = res.get("location", "See listing")
+                # Filter discovery results by location too!
+                if location and not ScraperService._normalize_location_match(location, loc_data, allow_remote=True):
+                    continue
+
+                results.append({
+                    "company": company,
+                    "role": res.get("title", "Job Opening"),
+                    "location": res.get("location", "See listing"),
+                    "link": url,
+                    "verified": False,
+                    "source": f"Web Search ({domain})",
+                    "posted": "Recent",
+                    "description": res.get("description", "")[:600],
+                    "experience": res.get("experience", "See listing"),
+                    "job_type": res.get("job_type", "Not Specified")
+                })
+        return results
 
     @staticmethod
     async def _fetch_lever_board(session: aiohttp.ClientSession, board: str, query: str, location: str = None) -> List[Dict]:
@@ -638,10 +725,18 @@ class ScraperService:
             'pendo', 'snyk', 'unity', 'webflow', 'zapier'
         ]
 
+        # Middle East boards (for Dubai/UAE)
+        GH_BOARDS_ME = [
+            'careem', 'talabat', 'noon', 'kitopi', 'propertyfinder', 'bayut',
+            'emirates', 'etihad', 'dubizzle', 'anghami', 'stc', 'aramco'
+        ]
+
         # Pick ATS boards based on location hint for efficiency
         loc_lower = (location or "").lower()
         if any(kw in loc_lower for kw in ["india", "bangalore", "bengaluru", "mumbai", "delhi", "pune", "hyderabad"]):
             GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_INDIA
+        elif any(kw in loc_lower for kw in ["uae", "dubai", "abu dhabi", "sharjah", "emirates", "qatar", "saudi"]):
+            GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_ME
         elif any(kw in loc_lower for kw in ["uk", "london", "manchester", "britain", "england"]):
             GH_BOARDS = GH_BOARDS_GLOBAL[:10] + GH_BOARDS_UK
         elif any(kw in loc_lower for kw in ["germany", "berlin", "france", "paris", "europe", "netherlands", "amsterdam"]):
@@ -657,14 +752,15 @@ class ScraperService:
 
         async with aiohttp.ClientSession(headers=ScraperService.get_headers()) as session:
             # Run all sources concurrently
+            discovery_task = ScraperService._fetch_from_discovery(session, query_clean, location)
             muse_task = ScraperService._fetch_muse_jobs(session, query_clean, location)
             remotive_task = ScraperService._fetch_remotive_jobs(session, query_clean, location)
             arbeitnow_task = ScraperService._fetch_arbeitnow_jobs(session, query_clean, location)
             gh_tasks = [ScraperService._fetch_greenhouse_board(session, board, query_clean, location) for board in GH_BOARDS]
             lever_tasks = [ScraperService._fetch_lever_board(session, board, query_clean, location) for board in LEVER_BOARDS]
 
-            all_tasks = [muse_task, remotive_task, arbeitnow_task] + gh_tasks + lever_tasks
-            all_task_names = ["The Muse", "Remotive", "Arbeit Now"] + GH_BOARDS + LEVER_BOARDS
+            all_tasks = [discovery_task, muse_task, remotive_task, arbeitnow_task] + gh_tasks + lever_tasks
+            all_task_names = ["Discovery", "The Muse", "Remotive", "Arbeit Now"] + GH_BOARDS + LEVER_BOARDS
 
             task_results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
@@ -688,11 +784,22 @@ class ScraperService:
             all_results = unique_results
 
             # Sort: exact role matches first, then by source priority
-            source_priority = {"The Muse": 0, "Remotive": 1, "Arbeit Now": 2, "Greenhouse ATS": 3, "Lever ATS": 4}
+            source_priority = {"Discovery": 0, "The Muse": 1, "Remotive": 2, "Arbeit Now": 3, "Greenhouse ATS": 4, "Lever ATS": 5}
             all_results.sort(key=lambda x: (
                 0 if query_clean in x["role"].lower() else 1,
-                source_priority.get(x.get("source", ""), 5)
+                source_priority.get(x.get("source", ""), 6)
             ))
+            
+            # Shuffle slightly within priority groups for variety
+            final_results = []
+            if all_results:
+                # Group by priority and shuffle within groups
+                from itertools import groupby
+                for _, group in groupby(all_results, key=lambda x: query_clean in x["role"].lower()):
+                    group_list = list(group)
+                    random.shuffle(group_list)
+                    final_results.extend(group_list)
+            all_results = final_results
 
         logger.info(f"Returning {min(len(all_results), 25)} results for '{query}' in '{location or 'anywhere'}'")
         return all_results[:25]

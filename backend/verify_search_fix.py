@@ -54,5 +54,38 @@ async def test_relevance_and_variety():
         else:
             logger.success(f"Location match: '{r['location']}' is valid for 'Pune' search.")
 
+async def test_dubai_and_discovery():
+    query = "Data analyst"
+    location = "Dubai"
+    
+    logger.info(f"Testing search for '{query}' in '{location}'...")
+    
+    # Search
+    results = await ScraperService.fetch_job_listings(query, location)
+    logger.info(f"Search returned {len(results)} results")
+    
+    discovery_found = False
+    for r in results:
+        loc_lower = r['location'].lower()
+        source = r['source'].lower()
+        
+        logger.info(f"Result: {r['company']} - {r['role']} | Location: {r['location']} | Source: {r['source']}")
+        
+        if "web search" in source:
+            discovery_found = True
+            
+        # Location check
+        if "dubai" not in loc_lower and "remote" not in loc_lower and "uae" not in loc_lower:
+             if "germany" in loc_lower or "america" in loc_lower or "europe" in loc_lower:
+                  logger.error(f"LOCATION LEAK: Got '{r['location']}' for Dubai search")
+        else:
+             logger.success(f"Valid location: {r['location']}")
+
+    if discovery_found:
+        logger.success("Web Discovery (Real-time Scraping) confirmed!")
+    else:
+        logger.warning("No Web Discovery results found. Check DuckDuckGo connectivity.")
+
 if __name__ == "__main__":
-    asyncio.run(test_relevance_and_variety())
+    # asyncio.run(test_relevance_and_variety())
+    asyncio.run(test_dubai_and_discovery())
