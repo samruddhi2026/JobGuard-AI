@@ -13,33 +13,50 @@ class AIService:
     def __init__(self):
         self.api_key = config.GEMINI_API_KEY
         self.enabled = bool(self.api_key) and HAS_GENAI
+        self._model = None
         
-        if self.enabled:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
-            logger.info("AIService: Gemini AI enabled and configured.")
-        else:
+        if not self.enabled:
             logger.warning("AIService: Gemini AI not configured. Using template-based fallback.")
+
+    async def _get_model(self):
+        """Lazy-load and configure the Gemini model to speed up application startup."""
+        if not self.enabled:
+            return None
+        
+        if self._model is None:
+            try:
+                logger.info("AIService: Initializing Gemini AI model...")
+                genai.configure(api_key=self.api_key)
+                self._model = genai.GenerativeModel('gemini-1.5-flash')
+                logger.info("AIService: Gemini AI model initialized successfully.")
+            except Exception as e:
+                logger.error(f"AIService: Failed to initialize Gemini: {e}")
+                self.enabled = False
+                return None
+        return self._model
 
     async def generate_interview_prep(self, job_description: str, seniority: str = "Mid-Level") -> dict:
         """Generates interview questions and tips based on JD."""
-        if self.enabled:
-            return await self._generate_with_gemini_interview(job_description, seniority)
+        model = await self._get_model()
+        if model:
+            return await self._generate_with_gemini_interview(model, job_description, seniority)
         return self._generate_fallback_interview(job_description, seniority)
 
     async def generate_cover_letter_parts(self, job_description: str, resume_text: str = "") -> dict:
         """Generates tailored sections for a cover letter."""
-        if self.enabled:
-            return await self._generate_with_gemini_cover_letter(job_description, resume_text)
+        model = await self._get_model()
+        if model:
+            return await self._generate_with_gemini_cover_letter(model, job_description, resume_text)
         return self._generate_fallback_cover_letter(job_description, resume_text)
 
     async def generate_gap_analysis(self, job_description: str, resume_text: str) -> dict:
         """Analyzes the gap between resume and JD."""
-        if self.enabled:
-            return await self._generate_with_gemini_gap(job_description, resume_text)
+        model = await self._get_model()
+        if model:
+            return await self._generate_with_gemini_gap(model, job_description, resume_text)
         return self._generate_fallback_gap(job_description, resume_text)
 
-    async def _generate_with_gemini_interview(self, jd: str, seniority: str) -> dict:
+    async def _generate_with_gemini_interview(self, model, jd: str, seniority: str) -> dict:
         prompt = f"""
         Act as an expert technical recruiter. Based on the following job description for a {seniority} role, 
         generate 5-7 high-quality interview questions. For each question, provide a brief 'Ideal Answer' hint.
@@ -56,8 +73,7 @@ class AIService:
         }}
         """
         try:
-            response = self.model.generate_content(prompt)
-            # Find JSON in response if not pure
+            response = await model.generate_content_async(prompt)
             text = response.text
             if "```json" in text:
                 text = text.split("```json")[1].split("```")[0].strip()
@@ -66,7 +82,7 @@ class AIService:
             logger.error(f"Gemini Interview Prep Error: {e}")
             return self._generate_fallback_interview(jd, seniority)
 
-    async def _generate_with_gemini_cover_letter(self, jd: str, resume: str) -> dict:
+    async def _generate_with_gemini_cover_letter(self, model, jd: str, resume: str) -> dict:
         prompt = f"""
         Act as a professional career coach. Generate a tailored cover letter for this job role.
         Use specific keywords from the job description and align them with the candidate's resume summary.
@@ -83,7 +99,7 @@ class AIService:
         }}
         """
         try:
-            response = self.model.generate_content(prompt)
+            response = await model.generate_content_async(prompt)
             text = response.text
             if "```json" in text:
                 text = text.split("```json")[1].split("```")[0].strip()
@@ -93,7 +109,6 @@ class AIService:
             return self._generate_fallback_cover_letter(jd, resume)
 
     def _generate_fallback_interview(self, jd: str, seniority: str) -> dict:
-        # Simple heuristic fallback
         return {
             "questions": [
                 {"question": f"How do your past projects align with the core requirements of this {seniority} role?", "hint": "Focus on specific technical accomplishments."},
@@ -118,7 +133,7 @@ class AIService:
             "closing": "Thank you for your time and consideration. I look forward to the possibility of discussing my application with you."
         }
 
-    async def _generate_with_gemini_gap(self, jd: str, resume: str) -> dict:
+    async def _generate_with_gemini_gap(self, model, jd: str, resume: str) -> dict:
         prompt = f"""
         Act as an elite technical recruiter and ATS specialist. Compare the following Resume against the Job Description.
         
@@ -140,7 +155,7 @@ class AIService:
         }}
         """
         try:
-            response = self.model.generate_content(prompt)
+            response = await model.generate_content_async(prompt)
             text = response.text
             if "```json" in text:
                 text = text.split("```json")[1].split("```")[0].strip()
