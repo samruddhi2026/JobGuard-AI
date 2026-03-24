@@ -33,6 +33,12 @@ class AIService:
             return await self._generate_with_gemini_cover_letter(job_description, resume_text)
         return self._generate_fallback_cover_letter(job_description, resume_text)
 
+    async def generate_gap_analysis(self, job_description: str, resume_text: str) -> dict:
+        """Analyzes the gap between resume and JD."""
+        if self.enabled:
+            return await self._generate_with_gemini_gap(job_description, resume_text)
+        return self._generate_fallback_gap(job_description, resume_text)
+
     async def _generate_with_gemini_interview(self, jd: str, seniority: str) -> dict:
         prompt = f"""
         Act as an expert technical recruiter. Based on the following job description for a {seniority} role, 
@@ -110,4 +116,47 @@ class AIService:
                 "I have followed your company's growth and I am excited about the possibility of contributing to your team's success."
             ],
             "closing": "Thank you for your time and consideration. I look forward to the possibility of discussing my application with you."
+        }
+
+    async def _generate_with_gemini_gap(self, jd: str, resume: str) -> dict:
+        prompt = f"""
+        Act as an elite technical recruiter and ATS specialist. Compare the following Resume against the Job Description.
+        
+        Job Description: {jd[:1500]}
+        Resume: {resume[:1500]}
+        
+        Return a strict JSON object with:
+        1. "match_score": (0-100 integer)
+        2. "matching_skills": [list of strings found in both]
+        3. "missing_skills": [significant keywords from JD missing in Resume]
+        4. "improvement_tips": [3 specific bullet points on how to update the resume]
+        
+        JSON Format only:
+        {{
+            "match_score": 85,
+            "matching_skills": ["Python", "AWS"],
+            "missing_skills": ["SQL", "FastAPI"],
+            "improvement_tips": ["...", "...", "..."]
+        }}
+        """
+        try:
+            response = self.model.generate_content(prompt)
+            text = response.text
+            if "```json" in text:
+                text = text.split("```json")[1].split("```")[0].strip()
+            return json.loads(text)
+        except Exception as e:
+            logger.error(f"Gemini Gap Analysis Error: {e}")
+            return self._generate_fallback_gap(jd, resume)
+
+    def _generate_fallback_gap(self, jd: str, resume: str) -> dict:
+        return {
+            "match_score": 65,
+            "matching_skills": ["Project Management", "Generic Soft Skills"],
+            "missing_skills": ["Specific technical keywords from the role"],
+            "improvement_tips": [
+                "Quantify your accomplishments with metrics (%, $).",
+                "Ensure technical keywords from the JD appear in your experience section.",
+                "Verify that your formatting is clean and ATS-friendly."
+            ]
         }

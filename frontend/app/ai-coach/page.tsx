@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { Brain, Sparkles, Send, Copy, Check, MessageSquare, FileText, Loader2, ArrowRight, Zap } from "lucide-react";
+import { Brain, Sparkles, Send, Copy, Check, MessageSquare, FileText, Loader2, ArrowRight, Zap, Target, AlertCircle, ListChecks } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
@@ -23,21 +23,37 @@ interface CoverLetter {
     closing: string;
 }
 
+interface GapAnalysis {
+    match_score: number;
+    matching_skills: string[];
+    missing_skills: string[];
+    improvement_tips: string[];
+}
+
 function AICoachContent() {
     const searchParams = useSearchParams();
     const [jd, setJd] = useState("");
+    const [resume, setResume] = useState("");
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<"interview" | "cover-letter">("interview");
+    const [activeTab, setActiveTab] = useState<"interview" | "cover-letter" | "match">("interview");
+    
     const [interviewData, setInterviewData] = useState<InterviewPrep | null>(null);
     const [coverLetterData, setCoverLetterData] = useState<CoverLetter | null>(null);
+    const [gapData, setGapData] = useState<GapAnalysis | null>(null);
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const jdParam = searchParams.get("jd");
-        if (jdParam) {
-            setJd(jdParam);
-        }
+        if (jdParam) setJd(jdParam);
+        
+        const savedResume = localStorage.getItem("jobguard_resume");
+        if (savedResume) setResume(savedResume);
     }, [searchParams]);
+
+    const saveResume = (val: string) => {
+        setResume(val);
+        localStorage.setItem("jobguard_resume", val);
+    };
 
     const generateAI = async () => {
         if (!jd.trim()) {
@@ -45,12 +61,29 @@ function AICoachContent() {
             return;
         }
 
+        if (activeTab === "match" && !resume.trim()) {
+            toast.error("Please provide your resume text for analysis.");
+            return;
+        }
+
         setLoading(true);
         try {
-            const endpoint = activeTab === "interview" ? "/api/v1/ai/interview-prep" : "/api/v1/ai/cover-letter";
-            const body = activeTab === "interview" ? { job_description: jd } : { job_description: jd, resume_text: "" };
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            let endpoint = "";
+            let body = {};
+
+            if (activeTab === "interview") {
+                endpoint = "/api/v1/ai/interview-prep";
+                body = { job_description: jd };
+            } else if (activeTab === "cover-letter") {
+                endpoint = "/api/v1/ai/cover-letter";
+                body = { job_description: jd, resume_text: resume };
+            } else if (activeTab === "match") {
+                endpoint = "/api/v1/ai/gap-analysis";
+                body = { job_description: jd, resume_text: resume };
+            }
             
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${endpoint}`, {
+            const res = await fetch(`${apiBase}${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
@@ -60,9 +93,10 @@ function AICoachContent() {
             
             const result = await res.json();
             if (activeTab === "interview") setInterviewData(result);
-            else setCoverLetterData(result);
+            else if (activeTab === "cover-letter") setCoverLetterData(result);
+            else if (activeTab === "match") setGapData(result);
             
-            toast.success("AI Generation successful!");
+            toast.success("Analysis complete!");
         } catch (err) {
             console.error(err);
             toast.error("Failed to connect to AI service.");
@@ -82,7 +116,7 @@ function AICoachContent() {
         `${coverLetterData.salutation}\n\n${coverLetterData.opening}\n\n${coverLetterData.body_paragraphs.join("\n\n")}\n\n${coverLetterData.closing}` : "";
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-5xl">
+        <div className="container mx-auto px-4 py-12 max-w-6xl">
             <header className="mb-12 text-center">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -96,8 +130,7 @@ function AICoachContent() {
                     Elevate Your <span className="gradient-text">Interview Performance</span>
                 </h1>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Transform any job description into a high-impact preparation guide. 
-                    Practice with tailored questions or generate a professional cover letter in seconds.
+                    Personalized coaching and gap analysis to help you land your dream role.
                 </p>
             </header>
 
@@ -112,8 +145,20 @@ function AICoachContent() {
                             value={jd}
                             onChange={(e) => setJd(e.target.value)}
                             placeholder="Paste the job description here..."
-                            className="w-full h-80 bg-background/50 border border-border/40 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none"
+                            className="w-full h-48 bg-background/50 border border-border/40 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none mb-6"
                         />
+
+                        <label className="block text-sm font-bold mb-3 flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-primary" />
+                            Your Resume (Optional for Prep, Required for Match)
+                        </label>
+                        <textarea 
+                            value={resume}
+                            onChange={(e) => saveResume(e.target.value)}
+                            placeholder="Paste your resume summary/skills here..."
+                            className="w-full h-48 bg-background/50 border border-border/40 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none"
+                        />
+                        
                         <button 
                             onClick={generateAI}
                             disabled={loading}
@@ -124,7 +169,7 @@ function AICoachContent() {
                             ) : (
                                 <>
                                     <Brain className="w-5 h-5" />
-                                    Generate Coaching Guide
+                                    {activeTab === 'match' ? 'Analyze Resume Gap' : 'Generate Guide'}
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}
@@ -136,29 +181,35 @@ function AICoachContent() {
                             <Zap className="w-4 h-4" /> Pro Tip
                         </h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                            Include the 'Requirements' and 'Responsibilities' sections of the JD for the most accurate AI matching and question generation.
+                            A Resume-JD match score above 80% significantly increases your chances of passing initial ATS filters.
                         </p>
                     </div>
                 </div>
 
                 <div className="lg:col-span-7 space-y-6">
-                    <div className="flex p-1 bg-muted/30 rounded-2xl border border-border/40 w-fit">
+                    <div className="flex p-1 bg-muted/30 rounded-2xl border border-border/40 w-fit overflow-x-auto max-w-full">
                         <button 
                             onClick={() => setActiveTab("interview")}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'interview' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'interview' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <MessageSquare className="w-4 h-4" /> Interview Prep
                         </button>
                         <button 
+                            onClick={() => setActiveTab("match")}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'match' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            <Target className="w-4 h-4" /> Resume Match
+                        </button>
+                        <button 
                             onClick={() => setActiveTab("cover-letter")}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'cover-letter' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'cover-letter' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <FileText className="w-4 h-4" /> Cover Letter
                         </button>
                     </div>
 
                     <AnimatePresence mode="wait">
-                        {activeTab === "interview" ? (
+                        {activeTab === "interview" && (
                             <motion.div 
                                 key="interview"
                                 initial={{ opacity: 0, x: 20 }}
@@ -207,7 +258,83 @@ function AICoachContent() {
                                     </>
                                 )}
                             </motion.div>
-                        ) : (
+                        )}
+
+                        {activeTab === "match" && (
+                            <motion.div 
+                                key="match"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-6"
+                            >
+                                {!gapData && !loading ? (
+                                    <div className="glass p-12 rounded-3xl border border-dashed border-white/20 text-center text-muted-foreground">
+                                        <Target className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                                        <p>Paste your resume and the JD to see how well you match the role.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="glass p-8 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4">
+                                                <Target className="w-20 h-20 text-indigo-500/5 opacity-20" />
+                                            </div>
+                                            <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">ATS Match Score</h3>
+                                            <div className="text-7xl font-black gradient-text mb-2">{gapData?.match_score}%</div>
+                                            <p className="text-sm text-muted-foreground">
+                                                {gapData?.match_score! > 80 ? "Excellent match! You are ready to apply." : "Good potential, but some key sections could be improved."}
+                                            </p>
+                                            <div className="h-3 w-full bg-muted/30 rounded-full mt-8 overflow-hidden">
+                                                <motion.div 
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${gapData?.match_score}%` }}
+                                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="glass p-6 rounded-2xl border border-emerald-500/10 bg-emerald-500/5">
+                                                <h4 className="flex items-center gap-2 font-bold mb-4 text-emerald-500">
+                                                    <Check className="w-4 h-4" /> Strong Keywords
+                                                </h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {gapData?.matching_skills.map(s => (
+                                                        <span key={s} className="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="glass p-6 rounded-2xl border border-amber-500/10 bg-amber-500/5">
+                                                <h4 className="flex items-center gap-2 font-bold mb-4 text-amber-500">
+                                                    <AlertCircle className="w-4 h-4" /> Missing Skills
+                                                </h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {gapData?.missing_skills.map(s => (
+                                                        <span key={s} className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-xs font-bold">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="glass p-6 rounded-2xl border border-white/10">
+                                            <h4 className="flex items-center gap-2 font-bold mb-4">
+                                                <ListChecks className="w-4 h-4 text-primary" /> Roadmap to 100%
+                                            </h4>
+                                            <ul className="space-y-3">
+                                                {gapData?.improvement_tips.map((tip, i) => (
+                                                    <li key={i} className="text-sm text-muted-foreground flex gap-3">
+                                                        <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">{i+1}</div>
+                                                        {tip}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {activeTab === "cover-letter" && (
                             <motion.div 
                                 key="cover-letter"
                                 initial={{ opacity: 0, x: 20 }}

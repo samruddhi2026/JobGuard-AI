@@ -31,3 +31,12 @@ async def get_cover_letter_parts(request: CoverLetterRequest):
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/gap-analysis")
+async def get_gap_analysis(request: CoverLetterRequest):
+    """Analyze the gap between resume and JD."""
+    try:
+        result = await ai_service.generate_gap_analysis(request.job_description, request.resume_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
