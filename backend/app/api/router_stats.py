@@ -62,6 +62,10 @@ async def get_market_insights(db: Session = Depends(get_db)):
         "Next.js": {"value": 6.2, "growth": "+8.2%"}
     }
 
+    # Fetch jobs from DB
+    from app.db.models import JobListing
+    jobs = db.query(JobListing).all()
+    
     jobs_with_desc = [j for j in jobs if j.description]
     total_local = len(jobs_with_desc)
     
