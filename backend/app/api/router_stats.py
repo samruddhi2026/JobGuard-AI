@@ -129,33 +129,28 @@ async def get_market_insights(
         {"name": "On-site", "value": f"{dist_onsite}%", "label": "Corporate Offices", "raw": dist_onsite}
     ]
 
-    # 3. 30-Day Trend Data (More dynamic)
+    # 3. 30-Day Trend Data
     today = datetime.now()
     trends = []
-    base_demand = 800
     for i in range(30, -1, -5):
         date = today - timedelta(days=i)
-        growth_factor = 1 + (0.05 * (30 - i) / 30) # 5% growth over 30 days
-        jitter = (hash(str(date.day)) % 40) - 20
+        # Simulate realistic demand curve with some jitter
+        base_demand = 800 + (30 - i) * 15 # Upward trend
+        jitter = (hash(str(date.day)) % 100) - 50
         trends.append({
             "date": date.strftime("%b %d"),
-            "demand": int(base_demand * growth_factor + jitter)
+            "demand": base_demand + jitter
         })
 
-    # 4. AI Skill Recommendations (Standout Feature)
-    # Filter for high growth skills
-    high_growth = [s["name"] for s in final_skills if "+" in s["growth"] and float(s["growth"].replace("+","").replace("%","")) > 3.0]
-    
-    # Safely pick skills for recommendations
-    rec_skill_1 = high_growth[0] if high_growth else 'FastAPI'
-    rec_skill_2 = high_growth[1] if len(high_growth) > 1 else 'Docker'
-    rec_skill_3 = high_growth[2] if len(high_growth) > 2 else 'AWS'
-
-    recommendations = [
-        f"Master {rec_skill_1} to capitalize on its {GLOBAL_BENCHMARKS.get(rec_skill_1, {'growth': '+5%' })['growth']} growth in the current market.",
-        f"Upskill in {rec_skill_2} as demand for cloud-native expertise is rising across {location or 'all'} regions.",
-        f"Combine {rec_skill_1} with {rec_skill_3} for high-compensation 'T-shaped' roles."
-    ]
+    # 4. Skill Recommendations (Rising Stars)
+    recommendations = []
+    rising_stars = [s for s in final_skills if "+" in s["growth"] and float(s["growth"].replace("+","").replace("%","")) > 4]
+    for rs in rising_stars[:3]:
+        recommendations.append({
+            "skill": rs["name"],
+            "reason": f"High velocity growth ({rs['growth']}) in {location or 'Global'} market.",
+            "type": "Rising Star"
+        })
 
     result = {
         "top_skills": sorted(final_skills, key=lambda x: x["value"], reverse=True),

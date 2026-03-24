@@ -44,14 +44,9 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS configuration
-# Explicitly include the user's Render domain to ensure no CORS blocking
-allowed_origins = config.BACKEND_CORS_ORIGINS or ["*"]
-if "https://jobguard-ai-1-5nsm.onrender.com" not in allowed_origins and "*" not in allowed_origins:
-    allowed_origins.append("https://jobguard-ai-1-5nsm.onrender.com")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=config.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
