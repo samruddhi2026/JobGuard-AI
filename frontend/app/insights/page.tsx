@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { TrendingUp, MapPin, Briefcase, Zap, Globe, Shield, Activity, Database, Clock, Filter, ChevronDown, BarChart3, PieChart as PieIcon, LineChart as LineIcon } from "lucide-react";
+import { useEffect, useState, useMemo, cloneElement, ReactElement } from "react";
+import { TrendingUp, MapPin, Briefcase, Zap, Globe, Shield, Activity, Database, Clock, Filter, ChevronDown, BarChart3, PieChart as PieIcon, LineChart as LineIcon, Info, LoaderCircle as Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { 
@@ -294,7 +294,7 @@ function MetricCard({ icon, label, value, trend, color = "text-foreground" }: { 
         <div className="glass p-5 rounded-2xl border border-white/10">
             <div className="flex items-center justify-between mb-3">
                 <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
-                    {cloneElement(icon as ReactElement, { className: "w-4 h-4" })}
+                    {cloneElement(icon, { className: "w-4 h-4" } as any)}
                 </div>
                 <span className="text-[10px] font-black uppercase text-emerald-500 tracking-tighter">{trend}</span>
             </div>

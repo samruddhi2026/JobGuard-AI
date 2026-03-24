@@ -4,6 +4,12 @@ from sqlalchemy import func
 from app.db.session import get_db
 from app.db.models import JobVerification, Resume, JobListing
 from datetime import datetime, timedelta
+from typing import Optional, Dict
+import time
+
+# Simple in-memory cache for insights
+_insights_cache: Dict[str, dict] = {}
+_cache_expiry = 300 # 5 minutes
 
 router = APIRouter()
 
@@ -48,6 +54,13 @@ async def get_market_insights(
     db: Session = Depends(get_db)
 ):
     """Advanced market insights with filtering and trend data."""
+    cache_key = f"{location}-{role}-{experience}"
+    now = time.time()
+    
+    if cache_key in _insights_cache:
+        cached_data, timestamp = _insights_cache[cache_key]
+        if now - timestamp < _cache_expiry:
+            return cached_data
     from app.services.ats_service import ATSService
     from app.db.models import JobListing
     ats = ATSService()
@@ -129,7 +142,7 @@ async def get_market_insights(
             "demand": base_demand + jitter
         })
 
-    return {
+    result = {
         "top_skills": sorted(final_skills, key=lambda x: x["value"], reverse=True),
         "top_locations": sorted(top_locations, key=lambda x: x["raw"], reverse=True),
         "trends": trends,
@@ -141,3 +154,6 @@ async def get_market_insights(
         },
         "last_updated": datetime.now().isoformat()
     }
+    
+    _insights_cache[cache_key] = (result, now)
+    return result
