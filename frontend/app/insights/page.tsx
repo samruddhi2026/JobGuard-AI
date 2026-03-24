@@ -28,6 +28,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 export default function InsightsPage() {
     const [data, setData] = useState<InsightData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<{ message: string; url: string } | null>(null);
     const [mounted, setMounted] = useState(false);
     
     // Filters
@@ -38,17 +39,26 @@ export default function InsightsPage() {
     const fetchInsights = async () => {
         setLoading(true);
         try {
+            setError(null);
             const params = new URLSearchParams();
             if (location !== "All") params.append("location", location);
             if (role !== "All") params.append("role", role);
             if (experience !== "All") params.append("experience", experience);
             
             const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-            const res = await fetch(`${apiBase}/api/v1/stats/insights?${params.toString()}`);
+            const apiUrl = `${apiBase}/api/v1/stats/insights?${params.toString()}`;
+            
+            const res = await fetch(apiUrl);
+            if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
             const json = await res.json();
             setData(json);
-        } catch (err) {
+        } catch (err: any) {
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
             console.error("Failed to fetch insights:", err);
+            setError({ 
+                message: err.message || "Failed to connect to analytics server", 
+                url: apiBase 
+            });
         } finally {
             setLoading(false);
         }
@@ -127,6 +137,36 @@ export default function InsightsPage() {
                     <div className="h-[600px] flex flex-col justify-center items-center gap-4">
                         <Loader2 className="w-12 h-12 animate-spin text-primary" />
                         <p className="text-sm font-bold animate-pulse">Processing Market Data...</p>
+                    </div>
+                ) : error ? (
+                    <div className="h-[500px] flex flex-col justify-center items-center gap-6 glass rounded-3xl border border-red-500/20 p-12 text-center">
+                        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2">
+                            <Shield className="w-10 h-10" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold mb-2">Connection Blocked</h2>
+                            <p className="text-muted-foreground max-w-md mx-auto mb-4">
+                                {error.message}. This is likely due to a CORS policy or a mismatch in deployment URLs.
+                            </p>
+                            <code className="block bg-black/40 p-3 rounded-xl text-[10px] font-mono text-red-300 border border-red-500/10 mb-6">
+                                Attempting to reach: {error.url}
+                            </code>
+                            <div className="flex flex-wrap justify-center gap-4">
+                                <button 
+                                    onClick={() => fetchInsights()}
+                                    className="px-8 py-3 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2"
+                                >
+                                    <TrendingUp className="w-4 h-4" /> Try Again
+                                </button>
+                                <a 
+                                    href="https://render.com" 
+                                    target="_blank"
+                                    className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-all"
+                                >
+                                    Check Render Dashboard
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-8">
