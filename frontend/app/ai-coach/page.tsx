@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { Brain, Sparkles, Send, Copy, Check, MessageSquare, FileText, Loader2, ArrowRight, Zap, Target, AlertCircle, ListChecks } from "lucide-react";
+import { Brain, Sparkles, Send, Copy, Check, MessageSquare, FileText, Loader2, ArrowRight, Zap, Target, AlertCircle, ListChecks, Wand2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
@@ -30,6 +30,11 @@ interface GapAnalysis {
     improvement_tips: string[];
 }
 
+interface SkillEnhancement {
+    skill: string;
+    suggestions: string[];
+}
+
 function AICoachContent() {
     const searchParams = useSearchParams();
     const [jd, setJd] = useState("");
@@ -41,6 +46,10 @@ function AICoachContent() {
     const [coverLetterData, setCoverLetterData] = useState<CoverLetter | null>(null);
     const [gapData, setGapData] = useState<GapAnalysis | null>(null);
     const [copied, setCopied] = useState(false);
+
+    // AI Re-writer State
+    const [loadingSkill, setLoadingSkill] = useState<string | null>(null);
+    const [enhancements, setEnhancements] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
         const jdParam = searchParams.get("jd");
@@ -94,7 +103,10 @@ function AICoachContent() {
             const result = await res.json();
             if (activeTab === "interview") setInterviewData(result);
             else if (activeTab === "cover-letter") setCoverLetterData(result);
-            else if (activeTab === "match") setGapData(result);
+            else if (activeTab === "match") {
+                setGapData(result);
+                setEnhancements({}); // Clear previous enhancements
+            }
             
             toast.success("Analysis complete!");
         } catch (err) {
@@ -102,6 +114,25 @@ function AICoachContent() {
             toast.error("Failed to connect to AI service.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const enhanceSkill = async (skill: string) => {
+        if (!jd.trim()) return;
+        setLoadingSkill(skill);
+        try {
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiBase}/api/v1/ai/suggest-bullets`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ skill_name: skill, job_description: jd }),
+            });
+            const result = await res.json();
+            setEnhancements(prev => ({ ...prev, [skill]: result.suggestions }));
+        } catch (err) {
+            toast.error("Failed to generate suggestions.");
+        } finally {
+            setLoadingSkill(null);
         }
     };
 
@@ -305,13 +336,65 @@ function AICoachContent() {
                                                 </div>
                                             </div>
                                             <div className="glass p-6 rounded-2xl border border-amber-500/10 bg-amber-500/5">
-                                                <h4 className="flex items-center gap-2 font-bold mb-4 text-amber-500">
-                                                    <AlertCircle className="w-4 h-4" /> Missing Skills
-                                                </h4>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {gapData?.missing_skills.map(s => (
-                                                        <span key={s} className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-xs font-bold">{s}</span>
-                                                    ))}
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <h4 className="flex items-center gap-2 font-bold text-amber-500">
+                                                        <AlertCircle className="w-4 h-4" /> Missing Skills
+                                                    </h4>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {gapData?.missing_skills.map(s => (
+                                                            <div key={s} className="group relative">
+                                                                <button 
+                                                                    onClick={() => enhanceSkill(s)}
+                                                                    className={`px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-xs font-bold hover:bg-amber-500/20 transition-all flex items-center gap-1.5 ${loadingSkill === s ? 'animate-pulse' : ''}`}
+                                                                >
+                                                                    {s}
+                                                                    {loadingSkill === s ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 opacity-50" />}
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    <AnimatePresence>
+                                                        {Object.keys(enhancements).map(skill => (
+                                                            <motion.div 
+                                                                key={skill}
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: "auto" }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="p-4 rounded-xl bg-background border border-amber-500/20 shadow-lg relative overflow-hidden"
+                                                            >
+                                                                <button 
+                                                                    onClick={() => setEnhancements(prev => {
+                                                                        const next = { ...prev };
+                                                                        delete next[skill];
+                                                                        return next;
+                                                                    })}
+                                                                    className="absolute top-2 right-2 p-1 hover:bg-muted rounded-md"
+                                                                >
+                                                                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                                                                </button>
+                                                                <h5 className="text-[10px] font-black uppercase text-amber-500 mb-2 flex items-center gap-1">
+                                                                    <Sparkles className="w-3 h-3" />
+                                                                    Success Roadmap: {skill}
+                                                                </h5>
+                                                                <ul className="space-y-2">
+                                                                    {enhancements[skill].map((bullet, i) => (
+                                                                        <li key={i} className="text-xs group flex items-start gap-2">
+                                                                            <button 
+                                                                                onClick={() => copyToClipboard(bullet)}
+                                                                                className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                            >
+                                                                                <Copy className="w-3 h-3 text-primary" />
+                                                                            </button>
+                                                                            <span className="leading-relaxed">{bullet}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </motion.div>
+                                                        ))}
+                                                    </AnimatePresence>
                                                 </div>
                                             </div>
                                         </div>

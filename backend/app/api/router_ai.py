@@ -14,6 +14,10 @@ class CoverLetterRequest(BaseModel):
     job_description: str
     resume_text: Optional[str] = ""
 
+class BulletSuggestionRequest(BaseModel):
+    skill_name: str
+    job_description: str
+
 @router.post("/interview-prep")
 async def get_interview_prep(request: InterviewPrepRequest):
     """Generate interview questions and tips."""
@@ -37,6 +41,15 @@ async def get_gap_analysis(request: CoverLetterRequest):
     """Analyze the gap between resume and JD."""
     try:
         result = await ai_service.generate_gap_analysis(request.job_description, request.resume_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/suggest-bullets")
+async def suggest_bullets(request: BulletSuggestionRequest):
+    """Suggest professional bullet points for a skill."""
+    try:
+        result = await ai_service.generate_suggested_bullets(request.skill_name, request.job_description)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

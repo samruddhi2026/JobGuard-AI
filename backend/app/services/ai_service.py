@@ -56,6 +56,13 @@ class AIService:
             return await self._generate_with_gemini_gap(model, job_description, resume_text)
         return self._generate_fallback_gap(job_description, resume_text)
 
+    async def generate_suggested_bullets(self, skill_name: str, job_description: str) -> dict:
+        """Suggests professional bullet points for a missing skill."""
+        model = await self._get_model()
+        if model:
+            return await self._generate_with_gemini_bullets(model, skill_name, job_description)
+        return self._generate_fallback_bullets(skill_name, job_description)
+
     async def _generate_with_gemini_interview(self, model, jd: str, seniority: str) -> dict:
         prompt = f"""
         Act as an expert technical recruiter. Based on the following job description for a {seniority} role, 
@@ -173,5 +180,47 @@ class AIService:
                 "Quantify your accomplishments with metrics (%, $).",
                 "Ensure technical keywords from the JD appear in your experience section.",
                 "Verify that your formatting is clean and ATS-friendly."
+            ]
+        }
+
+    async def _generate_with_gemini_bullets(self, model, skill: str, jd: str) -> dict:
+        prompt = f"""
+        Act as a professional resume writer. Generate 3 high-impact bullet points for a resume 
+        highlighting the skill '{skill}' based on the context of this Job Description.
+        
+        Job Description Context: {jd[:1000]}
+        
+        Requirements:
+        1. Use the STAR/XYZ method (Action -> Result -> Impact).
+        2. Use strong action verbs (e.g., 'Architected', 'Spearheaded', 'Optimized').
+        3. Include placeholder numbers [X%] or [Y$] to remind the user to quantify.
+        
+        Return JSON Format only:
+        {{
+            "skill": "{skill}",
+            "suggestions": [
+                "Spearheaded the integration of {skill}...",
+                "Optimized {skill} workflows...",
+                "Developed a scalable {skill} solution..."
+            ]
+        }}
+        """
+        try:
+            response = await model.generate_content_async(prompt)
+            text = response.text
+            if "```json" in text:
+                text = text.split("```json")[1].split("```")[0].strip()
+            return json.loads(text)
+        except Exception as e:
+            logger.error(f"Gemini Bullet Suggestion Error: {e}")
+            return self._generate_fallback_bullets(skill, jd)
+
+    def _generate_fallback_bullets(self, skill: str, jd: str) -> dict:
+        return {
+            "skill": skill,
+            "suggestions": [
+                f"Leveraged {skill} to improve operational efficiency by [X]%.",
+                f"Implemented {skill} solutions to address core technical challenges described in the JD.",
+                f"Collaborated with cross-functional teams to integrate {skill} into production environments."
             ]
         }
