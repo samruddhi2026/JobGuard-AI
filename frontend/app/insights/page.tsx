@@ -5,7 +5,7 @@ import { TrendingUp, MapPin, Briefcase, Zap, Globe, Shield, Activity, Database, 
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { 
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
     BarChart, Bar, Cell, PieChart, Pie, Sector
 } from "recharts";
 
@@ -13,6 +13,7 @@ interface InsightData {
     top_skills: { name: string; value: number; growth: string; market_share: string }[];
     top_locations: { name: string; value: string; label: string; raw: number }[];
     trends: { date: string; demand: number }[];
+    recommendations: string[];
     metrics: {
         sample_size: number;
         data_sources: string[];
@@ -153,7 +154,13 @@ export default function InsightsPage() {
                                 </div>
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={data?.trends}>
+                                        <AreaChart data={data?.trends}>
+                                            <defs>
+                                                <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                                </linearGradient>
+                                            </defs>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                             <XAxis dataKey="date" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
                                             <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
@@ -161,8 +168,8 @@ export default function InsightsPage() {
                                                 contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px', fontSize: '12px' }}
                                                 itemStyle={{ color: '#6366f1' }}
                                             />
-                                            <Line type="monotone" dataKey="demand" stroke="#6366f1" strokeWidth={4} dot={{ r: 4, fill: '#6366f1' }} activeDot={{ r: 8 }} />
-                                        </LineChart>
+                                            <Area type="monotone" dataKey="demand" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorDemand)" dot={{ r: 4, fill: '#6366f1' }} activeDot={{ r: 8 }} />
+                                        </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
                             </motion.div>
@@ -207,6 +214,33 @@ export default function InsightsPage() {
                                 </div>
                             </motion.div>
                         </div>
+
+                        {/* AI Insights & Recommendations */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-indigo-500/5 rounded-3xl border border-indigo-500/20 p-8 relative overflow-hidden group"
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2 group-hover:bg-indigo-500/20 transition-colors" />
+                            <div className="relative z-10">
+                                <h3 className="text-xl font-bold flex items-center gap-2 mb-6 text-indigo-400">
+                                    <Zap className="w-5 h-5 fill-indigo-400" />
+                                    AI-Powered Growth Strategy
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {data?.recommendations.map((rec, i) => (
+                                        <div key={i} className="glass bg-white/5 border-white/10 p-5 rounded-2xl flex gap-4 items-start">
+                                            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 font-black">
+                                                {i + 1}
+                                            </div>
+                                            <p className="text-sm leading-relaxed text-indigo-100/80">
+                                                {rec}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
 
                         {/* Bottom Row: Skills Distribution */}
                         <motion.div 

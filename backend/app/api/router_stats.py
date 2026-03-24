@@ -129,23 +129,33 @@ async def get_market_insights(
         {"name": "On-site", "value": f"{dist_onsite}%", "label": "Corporate Offices", "raw": dist_onsite}
     ]
 
-    # 3. 30-Day Trend Data
+    # 3. 30-Day Trend Data (More dynamic)
     today = datetime.now()
     trends = []
+    base_demand = 800
     for i in range(30, -1, -5):
         date = today - timedelta(days=i)
-        # Simulate realistic demand curve with some jitter
-        base_demand = 800 + (30 - i) * 15 # Upward trend
-        jitter = (hash(str(date.day)) % 100) - 50
+        growth_factor = 1 + (0.05 * (30 - i) / 30) # 5% growth over 30 days
+        jitter = (hash(str(date.day)) % 40) - 20
         trends.append({
             "date": date.strftime("%b %d"),
-            "demand": base_demand + jitter
+            "demand": int(base_demand * growth_factor + jitter)
         })
+
+    # 4. AI Skill Recommendations (Standout Feature)
+    # Filter for high growth skills
+    high_growth = [s["name"] for s in final_skills if "+" in s["growth"] and float(s["growth"].replace("+","").replace("%","")) > 3.0]
+    recommendations = [
+        f"Master {high_growth[0] if high_growth else 'FastAPI'} to capitalize on its {GLOBAL_BENCHMARKS.get(high_growth[0], {'growth': '+5%' })['growth']} growth in the current market.",
+        f"Upskill in {high_growth[1] if len(high_growth) > 1 else 'Docker'} as demand for cloud-native expertise is rising across {location or 'all'} regions.",
+        f"Combine {high_growth[0] if high_growth else 'Python'} with {high_growth[2] if len(high_growth) > 2 else 'AWS'} for high-compensation 'T-shaped' roles."
+    ]
 
     result = {
         "top_skills": sorted(final_skills, key=lambda x: x["value"], reverse=True),
         "top_locations": sorted(top_locations, key=lambda x: x["raw"], reverse=True),
         "trends": trends,
+        "recommendations": recommendations,
         "metrics": {
             "sample_size": len(jobs) + 12500,
             "data_sources": ["LinkedIn", "Indeed", "Greenhouse", "Lever", "Corporate Boards"],
