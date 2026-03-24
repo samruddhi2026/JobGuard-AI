@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, LayoutDashboard, Search, FileCheck, Home, Menu, X } from "lucide-react";
+import { Shield, LayoutDashboard, Search, FileCheck, Home, Menu, X, TrendingUp, Brain } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 const Navbar = () => {
@@ -28,6 +28,8 @@ const Navbar = () => {
                     <NavLink href="/ats-checker" icon={<FileCheck className="w-4 h-4" />} label="ATS Checker" onClick={closeMenu} />
                     <NavLink href="/career-finder" icon={<Search className="w-4 h-4" />} label="Career Finder" onClick={closeMenu} />
                     <NavLink href="/match" icon={<LayoutDashboard className="w-4 h-4" />} label="Expert Match" onClick={closeMenu} />
+                    <NavLink href="/insights" icon={<TrendingUp className="w-4 h-4" />} label="Insights" onClick={closeMenu} />
+                    <NavLink href="/ai-coach" icon={<Brain className="w-4 h-4" />} label="AI Coach" onClick={closeMenu} />
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-4">
@@ -63,6 +65,8 @@ const Navbar = () => {
                     <NavLink href="/ats-checker" icon={<FileCheck className="w-4 h-4" />} label="ATS Checker" onClick={closeMenu} />
                     <NavLink href="/career-finder" icon={<Search className="w-4 h-4" />} label="Career Finder" onClick={closeMenu} />
                     <NavLink href="/match" icon={<LayoutDashboard className="w-4 h-4" />} label="Expert Match" onClick={closeMenu} />
+                    <NavLink href="/insights" icon={<TrendingUp className="w-4 h-4" />} label="Insights" onClick={closeMenu} />
+                    <NavLink href="/ai-coach" icon={<Brain className="w-4 h-4" />} label="AI Coach" onClick={closeMenu} />
                     <Link
                         href={isDashboard ? "/" : "/dashboard"}
                         className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold ${isDashboard

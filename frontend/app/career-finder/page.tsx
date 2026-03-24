@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import { Search, Globe, CheckCircle2, Building2, MapPin, ExternalLink, RefreshCw, Briefcase, Info, Zap, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, Globe, CheckCircle2, Building2, MapPin, ExternalLink, RefreshCw, Briefcase, Info, Zap, ArrowRight, Brain } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { buildApiUrl } from "@/lib/api";
 
 interface JobListing {
     company: string;
@@ -32,6 +32,7 @@ export default function CareerFinder() {
     const [mounted, setMounted] = useState(false);
     const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         setMounted(true);
@@ -46,7 +47,7 @@ export default function CareerFinder() {
         setError(null);
 
         try {
-            const baseUrl = buildApiUrl("/scraper/search");
+            const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000') + "/api/v1/scraper/search";
             const params = new URLSearchParams({
                 company: company,
                 ...(location ? { location } : {})
@@ -169,6 +170,15 @@ export default function CareerFinder() {
                                             >
                                                 Apply Now <ExternalLink className="w-5 h-5" />
                                             </a>
+                                            <button
+                                                onClick={() => {
+                                                    const params = new URLSearchParams({ jd: selectedJob.description || "" });
+                                                    router.push(`/ai-coach?${params.toString()}`);
+                                                }}
+                                                className="w-full py-4 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 font-bold flex items-center justify-center gap-3 hover:bg-indigo-500/20 transition-all"
+                                            >
+                                                Prepare for Interview <Brain className="w-5 h-5" />
+                                            </button>
                                             <p className="text-[10px] text-center text-muted-foreground italic">
                                                 Redirects to {selectedJob.source} official portal.
                                             </p>

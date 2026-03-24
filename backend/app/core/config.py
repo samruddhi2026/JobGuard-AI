@@ -25,3 +25,4 @@ else:
 # AI Performance
 ENV = os.getenv("ENV", "production")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
