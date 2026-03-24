@@ -173,7 +173,7 @@ function AICoachContent() {
                                     </div>
                                 ) : (
                                     <>
-                                        {interviewData?.questions.map((q, idx) => (
+                                        {interviewData?.questions?.map((q, idx) => (
                                             <motion.div 
                                                 key={idx}
                                                 initial={{ opacity: 0, y: 10 }}
@@ -195,7 +195,7 @@ function AICoachContent() {
                                             <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 mt-8">
                                                 <h3 className="font-bold mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Preparation Tips</h3>
                                                 <ul className="space-y-2">
-                                                    {interviewData.general_tips.map((tip, idx) => (
+                                                    {interviewData?.general_tips?.map((tip, idx) => (
                                                         <li key={idx} className="text-sm text-muted-foreground flex gap-3">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                                             {tip}

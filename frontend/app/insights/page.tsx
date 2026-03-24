@@ -38,8 +38,8 @@ export default function InsightsPage() {
         );
     }
 
-    const maxSkillValue = Math.max(...(data?.top_skills.map(s => s.value) || [100]));
-    const maxLocValue = Math.max(...(data?.top_locations.map(l => l.value) || [100]));
+    const maxSkillValue = Math.max(...(data?.top_skills?.map(s => s.value) || [100]));
+    const maxLocValue = Math.max(...(data?.top_locations?.map(l => l.value) || [100]));
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-6xl">
@@ -88,7 +88,7 @@ export default function InsightsPage() {
                     </div>
                     
                     <div className="space-y-6">
-                        {data?.top_skills.map((skill, idx) => (
+                        {data?.top_skills?.map((skill, idx) => (
                             <div key={skill.name} className="space-y-2">
                                 <div className="flex justify-between text-sm font-medium">
                                     <span>{skill.name}</span>
@@ -124,7 +124,7 @@ export default function InsightsPage() {
                     </div>
                     
                     <div className="space-y-6">
-                        {data?.top_locations.map((loc, idx) => (
+                        {data?.top_locations?.map((loc, idx) => (
                             <div key={loc.name} className="space-y-2">
                                 <div className="flex justify-between text-sm font-medium">
                                     <div className="flex items-center gap-2">
