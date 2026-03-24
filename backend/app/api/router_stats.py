@@ -145,10 +145,16 @@ async def get_market_insights(
     # 4. AI Skill Recommendations (Standout Feature)
     # Filter for high growth skills
     high_growth = [s["name"] for s in final_skills if "+" in s["growth"] and float(s["growth"].replace("+","").replace("%","")) > 3.0]
+    
+    # Safely pick skills for recommendations
+    rec_skill_1 = high_growth[0] if high_growth else 'FastAPI'
+    rec_skill_2 = high_growth[1] if len(high_growth) > 1 else 'Docker'
+    rec_skill_3 = high_growth[2] if len(high_growth) > 2 else 'AWS'
+
     recommendations = [
-        f"Master {high_growth[0] if high_growth else 'FastAPI'} to capitalize on its {GLOBAL_BENCHMARKS.get(high_growth[0], {'growth': '+5%' })['growth']} growth in the current market.",
-        f"Upskill in {high_growth[1] if len(high_growth) > 1 else 'Docker'} as demand for cloud-native expertise is rising across {location or 'all'} regions.",
-        f"Combine {high_growth[0] if high_growth else 'Python'} with {high_growth[2] if len(high_growth) > 2 else 'AWS'} for high-compensation 'T-shaped' roles."
+        f"Master {rec_skill_1} to capitalize on its {GLOBAL_BENCHMARKS.get(rec_skill_1, {'growth': '+5%' })['growth']} growth in the current market.",
+        f"Upskill in {rec_skill_2} as demand for cloud-native expertise is rising across {location or 'all'} regions.",
+        f"Combine {rec_skill_1} with {rec_skill_3} for high-compensation 'T-shaped' roles."
     ]
 
     result = {
