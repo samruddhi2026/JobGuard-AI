@@ -20,8 +20,10 @@ interface InsightData {
 export default function InsightsPage() {
     const [data, setData] = useState<InsightData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const fetchInsights = async () => {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/stats/insights`);
@@ -83,7 +85,7 @@ export default function InsightsPage() {
                     <span className="flex items-center gap-1.5 bg-muted/50 px-3 py-1 rounded-full">
                         <Clock className="w-3.5 h-3.5" />
                         Updated: <span className="text-foreground font-bold">
-                            {data?.last_updated ? formatDistanceToNow(new Date(data.last_updated), { addSuffix: true }) : "Just now"}
+                            {mounted && data?.last_updated ? formatDistanceToNow(new Date(data.last_updated), { addSuffix: true }) : "Just now"}
                         </span>
                     </span>
                 </motion.div>
