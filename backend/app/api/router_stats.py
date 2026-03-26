@@ -63,6 +63,9 @@ async def get_market_insights(
             return cached_data
     from app.services.ats_service import ATSService
     from app.db.models import JobListing
+    from loguru import logger
+    
+    logger.info(f"Generating insights for location={location}, role={role}, experience={experience}")
     ats = ATSService()
     
     # Base query for jobs
@@ -71,12 +74,11 @@ async def get_market_insights(
         query = query.filter(JobListing.location.ilike(f"%{location}%"))
     if role and role != "All":
         query = query.filter(JobListing.title.ilike(f"%{role}%"))
-    # In a real app, experience would be a structured field. 
-    # Here we'll simulate by checking the description for keywords.
     
     jobs = query.all()
     jobs_with_desc = [j for j in jobs if j.description]
     total_local = len(jobs_with_desc)
+    logger.debug(f"Found {len(jobs)} total jobs, {total_local} with descriptions.")
     
     # 1. Hybrid Skill Distribution
     GLOBAL_BENCHMARKS = {
@@ -94,7 +96,9 @@ async def get_market_insights(
     for job in jobs_with_desc:
         skills = ats.extract_skills(job.description)
         for s in skills:
-            local_skill_shares[s] = local_skill_shares.get(s, 0) + 1
+            # Match skill names caseless for local aggregation
+            matched_name = next((b for b in GLOBAL_BENCHMARKS if b.lower() == s.lower()), s.capitalize())
+            local_skill_shares[matched_name] = local_skill_shares.get(matched_name, 0) + 1
 
     final_skills = []
     for name, bench in GLOBAL_BENCHMARKS.items():
@@ -110,13 +114,13 @@ async def get_market_insights(
         })
 
     # 2. Dynamic Workplace Distribution (Cross-checked)
-    remote_cnt = sum(1 for j in jobs if "remote" in (j.location or "").lower())
-    hybrid_cnt = sum(1 for j in jobs if "hybrid" in (j.location or "").lower())
+    remote_cnt = sum(1 for j in jobs if j.location and "remote" in j.location.lower())
+    hybrid_cnt = sum(1 for j in jobs if j.location and "hybrid" in j.location.lower())
     onsite_cnt = max(0, len(jobs) - remote_cnt - hybrid_cnt)
     
     # If filtered set is too small, use a realistic base distribution
     base_remote, base_hybrid, base_onsite = 28.4, 18.2, 53.4
-    if len(jobs) > 10:
+    if len(jobs) >= 5: # Lowered threshold to see real data more easily
         dist_remote = round((remote_cnt / len(jobs)) * 100, 1)
         dist_hybrid = round((hybrid_cnt / len(jobs)) * 100, 1)
         dist_onsite = round(100 - dist_remote - dist_hybrid, 1)
@@ -166,5 +170,6 @@ async def get_market_insights(
         "last_updated": datetime.now().isoformat()
     }
     
+    logger.success(f"Successfully generated insights with {len(result['top_skills'])} skills and {len(result['recommendations'])} recommendations.")
     _insights_cache[cache_key] = (result, now)
     return result

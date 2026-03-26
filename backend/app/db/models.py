@@ -34,6 +34,7 @@ class JobListing(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     company = Column(String)
     title = Column(String)
+    location = Column(String, nullable=True)
     link = Column(String)
     source = Column(String)
     is_verified = Column(Boolean, default=False)

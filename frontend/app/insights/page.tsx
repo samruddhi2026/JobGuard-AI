@@ -28,6 +28,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 export default function InsightsPage() {
     const [data, setData] = useState<InsightData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
     
     // Filters
@@ -37,18 +38,26 @@ export default function InsightsPage() {
 
     const fetchInsights = async () => {
         setLoading(true);
+        setError(null);
         try {
             const params = new URLSearchParams();
             if (location !== "All") params.append("location", location);
             if (role !== "All") params.append("role", role);
             if (experience !== "All") params.append("experience", experience);
             
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-            const res = await fetch(`${apiBase}/api/v1/stats/insights?${params.toString()}`);
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+            // Remove /api/v1 from the path since apiBase usually includes it
+            const res = await fetch(`${apiBase}/stats/insights?${params.toString()}`);
+            
+            if (!res.ok) {
+                throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+            }
+            
             const json = await res.json();
             setData(json);
         } catch (err) {
             console.error("Failed to fetch insights:", err);
+            setError("Could not load market data. Please try again later.");
         } finally {
             setLoading(false);
         }
@@ -79,15 +88,23 @@ export default function InsightsPage() {
                             Market <span className="gradient-text">Insights</span> Pro
                         </h1>
                         <p className="text-muted-foreground">
-                            Global talent analyzer fueled by {data?.metrics.sample_size.toLocaleString()}+ real-time listings.
+                            Global talent analyzer fueled by {data?.metrics?.sample_size?.toLocaleString() ?? "12,500"}+ real-time listings.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                         <span className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full border border-white/5">
+                        <span className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full border border-white/5">
                             <Clock className="w-3.5 h-3.5" />
                             Last Sync: {data?.last_updated ? formatDistanceToNow(new Date(data.last_updated), { addSuffix: true }) : "Just now"}
                         </span>
+                        <button 
+                            onClick={() => fetchInsights()}
+                            disabled={loading}
+                            className="flex items-center gap-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 px-3 py-1.5 rounded-full border border-indigo-500/20 transition-all disabled:opacity-50"
+                        >
+                            <Activity className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                            Sync Now
+                        </button>
                     </div>
                 </header>
 
@@ -114,14 +131,25 @@ export default function InsightsPage() {
                         <Loader2 className="w-12 h-12 animate-spin text-primary" />
                         <p className="text-sm font-bold tracking-widest uppercase opacity-50">Aggregating Market Data...</p>
                     </div>
+                ) : error ? (
+                    <div className="h-[400px] flex flex-col justify-center items-center gap-4 glass rounded-3xl border border-rose-500/20 bg-rose-500/5">
+                        <Info className="w-12 h-12 text-rose-500" />
+                        <p className="text-sm font-bold tracking-widest uppercase text-rose-500">{error}</p>
+                        <button 
+                            onClick={() => fetchInsights()}
+                            className="mt-4 px-6 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 rounded-full text-xs font-black uppercase tracking-widest border border-rose-500/20 transition-all"
+                        >
+                            Retry Sync
+                        </button>
+                    </div>
                 ) : (
                     <div className="space-y-8">
                         {/* KPI Row */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <MetricCard icon={<Database />} label="Analysed Listings" value={data?.metrics.sample_size.toLocaleString()!} trend="GLOBAL" />
-                            <MetricCard icon={<Activity />} label="Trend Velocity" value={data?.metrics.market_sentiment!} trend="DYNAMICS" color="text-indigo-500" />
-                            <MetricCard icon={<Globe />} label="Remote Adoption" value={data?.top_locations.find(l=>l.name==='Remote')?.value!} trend="ADOPTION" />
-                            <MetricCard icon={<Shield />} label="Trust Cluster" value={data?.metrics.confidence_score!} trend="VERIFIED" />
+                            <MetricCard icon={<Database />} label="Analysed Listings" value={data?.metrics?.sample_size?.toLocaleString() ?? "0"} trend="GLOBAL" />
+                            <MetricCard icon={<Activity />} label="Trend Velocity" value={data?.metrics?.market_sentiment ?? "Stable"} trend="DYNAMICS" color="text-indigo-500" />
+                            <MetricCard icon={<Globe />} label="Remote Adoption" value={data?.top_locations?.find(l=>l.name==='Remote')?.value ?? "0%"} trend="ADOPTION" />
+                            <MetricCard icon={<Shield />} label="Trust Cluster" value={data?.metrics?.confidence_score ?? "Calculating"} trend="VERIFIED" />
                         </div>
 
                         {/* Visual Intelligence Grid */}
@@ -136,7 +164,7 @@ export default function InsightsPage() {
                                 </div>
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={data?.trends}>
+                                        <LineChart data={data?.trends ?? []}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                             <XAxis dataKey="date" stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
                                             <YAxis stroke="#666" fontSize={10} axisLine={false} tickLine={false} />
@@ -157,15 +185,22 @@ export default function InsightsPage() {
                                         <Rocket className="w-5 h-5" /> Rising Stars
                                     </h2>
                                     <div className="space-y-3">
-                                        {data?.recommendations.map((rec, i) => (
-                                            <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="font-bold text-sm group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{rec.skill}</span>
-                                                    <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-black">RISING</span>
+                                        {data?.recommendations && data.recommendations.length > 0 ? (
+                                            data.recommendations.map((rec, i) => (
+                                                <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all group">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="font-bold text-sm group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{rec.skill}</span>
+                                                        <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-black">RISING</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-muted-foreground leading-relaxed italic">"{rec.reason}"</p>
                                                 </div>
-                                                <p className="text-[11px] text-muted-foreground leading-relaxed italic">"{rec.reason}"</p>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-6 opacity-30 text-xs italic uppercase tracking-widest flex flex-col items-center gap-2">
+                                                <Database className="w-8 h-8 opacity-20" />
+                                                Analyzing Trends...
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 </div>
                                 <div className="glass p-6 rounded-3xl border border-white/10">
@@ -175,8 +210,8 @@ export default function InsightsPage() {
                                     <div className="h-[150px] w-full">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
-                                                <Pie data={data?.top_locations} innerRadius={45} outerRadius={60} paddingAngle={5} dataKey="raw">
-                                                    {data?.top_locations.map((entry, index) => (
+                                                <Pie data={data?.top_locations ?? []} innerRadius={45} outerRadius={60} paddingAngle={5} dataKey="raw">
+                                                    {(data?.top_locations ?? []).map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
@@ -184,7 +219,7 @@ export default function InsightsPage() {
                                         </ResponsiveContainer>
                                     </div>
                                     <div className="flex justify-between mt-2 px-4">
-                                        {data?.top_locations.map((loc, i) => (
+                                        {data?.top_locations?.map((loc, i) => (
                                             <div key={loc.name} className="flex flex-col items-center">
                                                 <div className="w-2 h-2 rounded-full mb-1" style={{ backgroundColor: COLORS[i] }} />
                                                 <span className="text-[10px] uppercase font-black opacity-50">{loc.name[0]}</span>
@@ -214,12 +249,12 @@ export default function InsightsPage() {
                                 {/* Interactive Bar Chart */}
                                 <div className="h-[400px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={data?.top_skills} layout="vertical" margin={{ left: 20, right: 40 }}>
+                                        <BarChart data={data?.top_skills ?? []} layout="vertical" margin={{ left: 20, right: 40 }}>
                                             <XAxis type="number" hide />
                                             <YAxis dataKey="name" type="category" stroke="#999" fontSize={12} axisLine={false} tickLine={false} width={80} />
                                             <Tooltip contentStyle={{ backgroundColor: '#111', border: 'none', borderRadius: '12px', fontSize: '12px' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                                             <Bar dataKey="value" fill="#6366f1" radius={[0, 10, 10, 0]} barSize={25}>
-                                                {data?.top_skills.map((entry, index) => (
+                                                {(data?.top_skills ?? []).map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={index === 0 ? '#6366f1' : 'rgba(99, 102, 241, 0.3)'} />
                                                 ))}
                                             </Bar>
@@ -237,7 +272,7 @@ export default function InsightsPage() {
                                         </div>
                                     </div>
                                     <div className="max-h-[350px] overflow-y-auto pr-4 space-y-4 thin-scrollbar">
-                                        {data?.top_skills.map((skill, i) => (
+                                        {data?.top_skills?.map((skill, i) => (
                                             <div key={skill.name} className="flex justify-between items-center group cursor-pointer">
                                                 <div className="flex items-center gap-4">
                                                     <span className="text-xl font-black opacity-20 group-hover:opacity-100 transition-opacity">{(i + 1).toString().padStart(2, '0')}</span>
