@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo, cloneElement, ReactElement } from "react";
+import { useEffect, useState, ReactElement } from "react";
 import { TrendingUp, MapPin, Briefcase, Zap, Globe, Shield, Activity, Database, Clock, Filter, ChevronDown, BarChart3, PieChart as PieIcon, LineChart as LineIcon, Info, LoaderCircle as Loader2, Sparkles, Rocket } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { 
@@ -72,6 +73,7 @@ export default function InsightsPage() {
 
     return (
         <div className="min-h-screen bg-background/50">
+            <Navbar />
             <div className="container mx-auto px-4 py-12 max-w-7xl">
                 {/* Header Section */}
                 <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -308,12 +310,6 @@ export default function InsightsPage() {
                 )}
             </div>
 
-            <style jsx global>{`
-                .thin-scrollbar::-webkit-scrollbar { width: 4px; }
-                .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .thin-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-                .gradient-text { background: linear-gradient(to right, #6366f1, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-            `}</style>
         </div>
     );
 }
@@ -358,8 +354,8 @@ function MetricCard({ icon, label, value, trend, color = "text-foreground" }: { 
         <div className="glass p-6 rounded-3xl border border-white/10 hover:border-white/20 transition-all group overflow-hidden relative">
             <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-12 translate-x-12 blur-3xl group-hover:bg-primary/10 transition-colors" />
             <div className="flex items-center justify-between mb-4">
-                <div className="p-2.5 rounded-xl bg-white/5 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                    {cloneElement(icon, { className: "w-5 h-5" } as any)}
+                <div className="p-2.5 rounded-xl bg-white/5 text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-all [&>svg]:w-5 [&>svg]:h-5">
+                    {icon}
                 </div>
                 <span className="text-[9px] font-black uppercase text-emerald-500 tracking-tighter bg-emerald-500/5 px-2 py-1 rounded-full border border-emerald-500/10">{trend}</span>
             </div>
