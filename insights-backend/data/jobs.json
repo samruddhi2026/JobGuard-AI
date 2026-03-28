@@ -1,0 +1,1066 @@
+[
+  {
+    "title": "React Developer",
+    "company": "CyberGuard",
+    "location": "London",
+    "description": "We are looking for an expert in React, AWS, C++, Docker.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-24T12:00:36.655Z",
+    "skills": [
+      "React",
+      "AWS",
+      "Docker"
+    ],
+    "job_url": "https://example.com/job/ete1dqfmb",
+    "_id": "mnaa3qy9kaswemh3gi"
+  },
+  {
+    "title": "Rust Developer",
+    "company": "GlobalSoft",
+    "location": "Bangalore",
+    "description": "We are looking for an expert in Rust, Node.js, Docker, SQL.",
+    "source": "LinkedIn",
+    "date_posted": "2026-02-27T12:00:36.683Z",
+    "skills": [
+      "Node.js",
+      "SQL",
+      "Docker",
+      "Rust",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/y7c9xprz0",
+    "_id": "mnaa3qz1ddz5sakp1ct"
+  },
+  {
+    "title": "React Developer",
+    "company": "InnovateIT",
+    "location": "San Francisco",
+    "description": "We are looking for an expert in React, Python, TypeScript.",
+    "source": "Naukri",
+    "date_posted": "2026-03-14T12:00:36.687Z",
+    "skills": [
+      "Python",
+      "React",
+      "TypeScript"
+    ],
+    "job_url": "https://example.com/job/sr6rg3b02",
+    "_id": "mnaa3qz4820nmuk9b3h"
+  },
+  {
+    "title": "Docker Developer",
+    "company": "StartupX",
+    "location": "San Francisco",
+    "description": "We are looking for an expert in Docker, JavaScript, PHP.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-11T12:00:36.690Z",
+    "skills": [
+      "JavaScript",
+      "Docker",
+      "PHP"
+    ],
+    "job_url": "https://example.com/job/1l0l05nau",
+    "_id": "mnaa3qz7ga9nibsll65"
+  },
+  {
+    "title": "React Developer",
+    "company": "CloudScale",
+    "location": "Seattle",
+    "description": "We are looking for an expert in React, PHP, SQL.",
+    "source": "Indeed",
+    "date_posted": "2026-03-12T12:00:36.693Z",
+    "skills": [
+      "React",
+      "SQL",
+      "PHP"
+    ],
+    "job_url": "https://example.com/job/cc83ochg9",
+    "_id": "mnaa3qzakr8e427t2dl"
+  },
+  {
+    "title": "Sass Developer",
+    "company": "DevSync",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Sass, SQL, TypeScript, MongoDB, Node.js.",
+    "source": "Naukri",
+    "date_posted": "2026-03-14T12:00:36.701Z",
+    "skills": [
+      "Node.js",
+      "TypeScript",
+      "SQL",
+      "MongoDB",
+      "Sass",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/r1ni6piev",
+    "_id": "mnaa3qzidq5r3f159yd"
+  },
+  {
+    "title": "Next.js Developer",
+    "company": "DevSync",
+    "location": "Bangalore",
+    "description": "We are looking for an expert in Next.js, TypeScript, Docker, Vue.js, JavaScript.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-20T12:00:36.706Z",
+    "skills": [
+      "JavaScript",
+      "TypeScript",
+      "Docker",
+      "Next.js",
+      "Vue.js"
+    ],
+    "job_url": "https://example.com/job/cmsh1k1m7",
+    "_id": "mnaa3qzn79y7j2pb1r8"
+  },
+  {
+    "title": "Tailwind Developer",
+    "company": "Backend Hub",
+    "location": "Austin",
+    "description": "We are looking for an expert in Tailwind, Sass, Java, Node.js, CSS, JavaScript.",
+    "source": "Indeed",
+    "date_posted": "2026-03-14T12:00:36.711Z",
+    "skills": [
+      "JavaScript",
+      "Node.js",
+      "Java",
+      "Tailwind",
+      "Sass",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/gc7xfe4dd",
+    "_id": "mnaa3qzsal86wnsjzz7"
+  },
+  {
+    "title": "JavaScript Developer",
+    "company": "DevSync",
+    "location": "Seattle",
+    "description": "We are looking for an expert in JavaScript, Python, C++, React.",
+    "source": "Naukri",
+    "date_posted": "2026-03-28T12:00:36.714Z",
+    "skills": [
+      "JavaScript",
+      "Python",
+      "React"
+    ],
+    "job_url": "https://example.com/job/9g0u3y7j1",
+    "_id": "mnaa3qzyygbncrrgara"
+  },
+  {
+    "title": "C# Developer",
+    "company": "DataLabs",
+    "location": "Austin",
+    "description": "We are looking for an expert in C#, AWS, SQL, MongoDB, C++.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-03T12:00:36.720Z",
+    "skills": [
+      "SQL",
+      "AWS",
+      "MongoDB"
+    ],
+    "job_url": "https://example.com/job/mbuf360ti",
+    "_id": "mnaa3r015i62cfjzi24"
+  },
+  {
+    "title": "AWS Developer",
+    "company": "UI Pros",
+    "location": "New York",
+    "description": "We are looking for an expert in AWS, JavaScript, Express, HTML, PHP.",
+    "source": "Indeed",
+    "date_posted": "2026-03-20T12:00:36.724Z",
+    "skills": [
+      "JavaScript",
+      "AWS",
+      "Express",
+      "PHP",
+      "HTML"
+    ],
+    "job_url": "https://example.com/job/zrl03kt7g",
+    "_id": "mnaa3r05ahpo41o3foc"
+  },
+  {
+    "title": "MongoDB Developer",
+    "company": "GlobalSoft",
+    "location": "Austin",
+    "description": "We are looking for an expert in MongoDB, Node.js, C++, PHP, TypeScript, SQL.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-03T12:00:36.728Z",
+    "skills": [
+      "Node.js",
+      "TypeScript",
+      "SQL",
+      "MongoDB",
+      "PHP",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/vayuamah5",
+    "_id": "mnaa3r09e3d5b5juby8"
+  },
+  {
+    "title": "PostgreSQL Developer",
+    "company": "CyberGuard",
+    "location": "Berlin",
+    "description": "We are looking for an expert in PostgreSQL, Java, C++.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-05T12:00:36.731Z",
+    "skills": [
+      "PostgreSQL",
+      "Java"
+    ],
+    "job_url": "https://example.com/job/rm1yc1xbu",
+    "_id": "mnaa3r0etceyyslpr3g"
+  },
+  {
+    "title": "Express Developer",
+    "company": "TechCorp",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Express, Docker, Vue.js, AWS, PostgreSQL.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-23T12:00:36.738Z",
+    "skills": [
+      "AWS",
+      "Docker",
+      "Express",
+      "PostgreSQL",
+      "Vue.js",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/l6pidsc49",
+    "_id": "mnaa3r0ijx7reny6jr"
+  },
+  {
+    "title": "Node.js Developer",
+    "company": "StartupX",
+    "location": "London",
+    "description": "We are looking for an expert in Node.js, PHP, Sass.",
+    "source": "Indeed",
+    "date_posted": "2026-03-20T12:00:36.741Z",
+    "skills": [
+      "Node.js",
+      "PHP",
+      "Sass",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/u18958pxy",
+    "_id": "mnaa3r0mp0wm3u4b8hb"
+  },
+  {
+    "title": "CSS Developer",
+    "company": "TechCorp",
+    "location": "Berlin",
+    "description": "We are looking for an expert in CSS, Java, AWS, Angular.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-01T12:00:36.744Z",
+    "skills": [
+      "AWS",
+      "Java",
+      "Angular",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/zbws74lus",
+    "_id": "mnaa3r0p4mscfqu7nvm"
+  },
+  {
+    "title": "CSS Developer",
+    "company": "DevSync",
+    "location": "Seattle",
+    "description": "We are looking for an expert in CSS, JavaScript, Next.js, Kubernetes.",
+    "source": "Naukri",
+    "date_posted": "2026-03-16T12:00:36.747Z",
+    "skills": [
+      "JavaScript",
+      "Next.js",
+      "Kubernetes",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/ddr844arz",
+    "_id": "mnaa3r0ucdx2amumh7s"
+  },
+  {
+    "title": "Next.js Developer",
+    "company": "GlobalSoft",
+    "location": "Austin",
+    "description": "We are looking for an expert in Next.js, Kubernetes, Rust, Go, Node.js.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-21T12:00:36.757Z",
+    "skills": [
+      "Node.js",
+      "Next.js",
+      "Kubernetes",
+      "Go",
+      "Rust",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/b504urrze",
+    "_id": "mnaa3r12ir8e76rkhe"
+  },
+  {
+    "title": "TypeScript Developer",
+    "company": "UI Pros",
+    "location": "Singapore",
+    "description": "We are looking for an expert in TypeScript, HTML, Next.js, Node.js, C++, PostgreSQL.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-01T12:00:36.760Z",
+    "skills": [
+      "Node.js",
+      "TypeScript",
+      "Next.js",
+      "PostgreSQL",
+      "HTML",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/8crpceqbt",
+    "_id": "mnaa3r15zs19zsbsegd"
+  },
+  {
+    "title": "Go Developer",
+    "company": "CyberGuard",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Go, Tailwind, CSS, Python, C++.",
+    "source": "Indeed",
+    "date_posted": "2026-03-21T12:00:36.763Z",
+    "skills": [
+      "Python",
+      "Go",
+      "Tailwind",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/8yqa6dkkk",
+    "_id": "mnaa3r1780vk3t5w5rg"
+  },
+  {
+    "title": "Angular Developer",
+    "company": "CloudScale",
+    "location": "Dubai",
+    "description": "We are looking for an expert in Angular, Node.js, HTML, JavaScript.",
+    "source": "Indeed",
+    "date_posted": "2026-03-17T12:00:36.772Z",
+    "skills": [
+      "JavaScript",
+      "Node.js",
+      "Angular",
+      "HTML"
+    ],
+    "job_url": "https://example.com/job/29ps28z8t",
+    "_id": "mnaa3r1h3p9mac67hd5"
+  },
+  {
+    "title": "Go Developer",
+    "company": "CloudScale",
+    "location": "London",
+    "description": "We are looking for an expert in Go, PHP, Sass, Express, AWS.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-19T12:00:36.775Z",
+    "skills": [
+      "AWS",
+      "Express",
+      "Go",
+      "PHP",
+      "Sass"
+    ],
+    "job_url": "https://example.com/job/5a5d0lxrl",
+    "_id": "mnaa3r1kicp3jhfiro7"
+  },
+  {
+    "title": "Docker Developer",
+    "company": "CyberGuard",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Docker, Go, TypeScript.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-03T12:00:36.778Z",
+    "skills": [
+      "TypeScript",
+      "Docker",
+      "Go"
+    ],
+    "job_url": "https://example.com/job/2rjv3a4w9",
+    "_id": "mnaa3r1nau3ix50185p"
+  },
+  {
+    "title": "MongoDB Developer",
+    "company": "CloudScale",
+    "location": "Seattle",
+    "description": "We are looking for an expert in MongoDB, Rust, Docker, C#.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-15T12:00:36.786Z",
+    "skills": [
+      "Docker",
+      "MongoDB",
+      "Rust"
+    ],
+    "job_url": "https://example.com/job/j2yfk113e",
+    "_id": "mnaa3r1v1kpnwav4u8o"
+  },
+  {
+    "title": "C++ Developer",
+    "company": "GlobalSoft",
+    "location": "London",
+    "description": "We are looking for an expert in C++, TypeScript, Rust, C#, SQL, PHP.",
+    "source": "Indeed",
+    "date_posted": "2026-03-21T12:00:36.789Z",
+    "skills": [
+      "TypeScript",
+      "SQL",
+      "Rust",
+      "PHP"
+    ],
+    "job_url": "https://example.com/job/jlly76i7g",
+    "_id": "mnaa3r1y4x2osh2th8u"
+  },
+  {
+    "title": "Kubernetes Developer",
+    "company": "InnovateIT",
+    "location": "Remote",
+    "description": "We are looking for an expert in Kubernetes, Vue.js, Go.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-13T12:00:36.792Z",
+    "skills": [
+      "Kubernetes",
+      "Go",
+      "Vue.js",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/qumkzvn7o",
+    "_id": "mnaa3r21cjm4tcf7lx5"
+  },
+  {
+    "title": "React Developer",
+    "company": "TechCorp",
+    "location": "Bangalore",
+    "description": "We are looking for an expert in React, Python, Tailwind, SQL.",
+    "source": "Naukri",
+    "date_posted": "2026-03-09T12:00:36.796Z",
+    "skills": [
+      "Python",
+      "React",
+      "SQL",
+      "Tailwind"
+    ],
+    "job_url": "https://example.com/job/rzl6fwqcx",
+    "_id": "mnaa3r24o29flegk8mf"
+  },
+  {
+    "title": "PHP Developer",
+    "company": "UI Pros",
+    "location": "New York",
+    "description": "We are looking for an expert in PHP, AWS, Vue.js.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-07T12:00:36.801Z",
+    "skills": [
+      "AWS",
+      "PHP",
+      "Vue.js",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/fltjwwi4i",
+    "_id": "mnaa3r2b7c7vlbx28kw"
+  },
+  {
+    "title": "Vue.js Developer",
+    "company": "DataLabs",
+    "location": "New York",
+    "description": "We are looking for an expert in Vue.js, Kubernetes, Rust, Python.",
+    "source": "LinkedIn",
+    "date_posted": "2026-02-27T12:00:36.810Z",
+    "skills": [
+      "Python",
+      "Kubernetes",
+      "Rust",
+      "Vue.js",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/uuefdbv4e",
+    "_id": "mnaa3r2jq1vu9205wq"
+  },
+  {
+    "title": "Go Developer",
+    "company": "InnovateIT",
+    "location": "San Francisco",
+    "description": "We are looking for an expert in Go, Express, CSS.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-17T12:00:36.813Z",
+    "skills": [
+      "Express",
+      "Go",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/zwmtfd8us",
+    "_id": "mnaa3r2lhlo3ffue2uq"
+  },
+  {
+    "title": "SQL Developer",
+    "company": "CyberGuard",
+    "location": "Dubai",
+    "description": "We are looking for an expert in SQL, MongoDB, Rust, PostgreSQL.",
+    "source": "Indeed",
+    "date_posted": "2026-03-27T12:00:36.819Z",
+    "skills": [
+      "SQL",
+      "MongoDB",
+      "PostgreSQL",
+      "Rust"
+    ],
+    "job_url": "https://example.com/job/7alt3dkv5",
+    "_id": "mnaa3r2s8mpjz42o02m"
+  },
+  {
+    "title": "SQL Developer",
+    "company": "CyberGuard",
+    "location": "Singapore",
+    "description": "We are looking for an expert in SQL, Rust, TypeScript, MongoDB, Go, CSS.",
+    "source": "Indeed",
+    "date_posted": "2026-03-01T12:00:36.823Z",
+    "skills": [
+      "TypeScript",
+      "SQL",
+      "MongoDB",
+      "Go",
+      "Rust",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/hhhgsp9ks",
+    "_id": "mnaa3r2vyh7ozt6yqyl"
+  },
+  {
+    "title": "SQL Developer",
+    "company": "StartupX",
+    "location": "Berlin",
+    "description": "We are looking for an expert in SQL, Sass, Docker.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-13T12:00:36.825Z",
+    "skills": [
+      "SQL",
+      "Docker",
+      "Sass"
+    ],
+    "job_url": "https://example.com/job/9uu5y2lam",
+    "_id": "mnaa3r2yiiu1zevzjqq"
+  },
+  {
+    "title": "Express Developer",
+    "company": "TechCorp",
+    "location": "London",
+    "description": "We are looking for an expert in Express, Java, Tailwind, Vue.js, C++, AWS.",
+    "source": "Naukri",
+    "date_posted": "2026-03-06T12:00:36.828Z",
+    "skills": [
+      "AWS",
+      "Express",
+      "Java",
+      "Vue.js",
+      "Tailwind",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/2pzgugs6q",
+    "_id": "mnaa3r30rxzdyfcnrzs"
+  },
+  {
+    "title": "AWS Developer",
+    "company": "Backend Hub",
+    "location": "Singapore",
+    "description": "We are looking for an expert in AWS, Express, Angular, CSS.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-03T12:00:36.830Z",
+    "skills": [
+      "AWS",
+      "Express",
+      "Angular",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/vk81kjklo",
+    "_id": "mnaa3r37aww1shtb6m"
+  },
+  {
+    "title": "Node.js Developer",
+    "company": "DevSync",
+    "location": "Remote",
+    "description": "We are looking for an expert in Node.js, Rust, Vue.js, SQL, C++, Docker.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-16T12:00:36.838Z",
+    "skills": [
+      "Node.js",
+      "SQL",
+      "Docker",
+      "Rust",
+      "Vue.js",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/x8ohx1798",
+    "_id": "mnaa3r3a1dmu9g62j0t"
+  },
+  {
+    "title": "HTML Developer",
+    "company": "StartupX",
+    "location": "Seattle",
+    "description": "We are looking for an expert in HTML, C++, SQL, Express, Rust, Docker.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-28T12:00:36.841Z",
+    "skills": [
+      "SQL",
+      "Docker",
+      "Express",
+      "Rust",
+      "HTML"
+    ],
+    "job_url": "https://example.com/job/hoa5ozftt",
+    "_id": "mnaa3r3evk2b4xo0x3r"
+  },
+  {
+    "title": "Go Developer",
+    "company": "TechCorp",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Go, Python, JavaScript, C#, MongoDB, Tailwind.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-18T12:00:36.844Z",
+    "skills": [
+      "JavaScript",
+      "Python",
+      "MongoDB",
+      "Go",
+      "Tailwind"
+    ],
+    "job_url": "https://example.com/job/5cl2gjhe8",
+    "_id": "mnaa3r3hejqwsnde6ok"
+  },
+  {
+    "title": "Java Developer",
+    "company": "GlobalSoft",
+    "location": "New York",
+    "description": "We are looking for an expert in Java, C++, Kubernetes.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-20T12:00:36.847Z",
+    "skills": [
+      "Kubernetes",
+      "Java"
+    ],
+    "job_url": "https://example.com/job/e1l8wpegd",
+    "_id": "mnaa3r3k75b8qkef7cq"
+  },
+  {
+    "title": "Python Developer",
+    "company": "GlobalSoft",
+    "location": "Austin",
+    "description": "We are looking for an expert in Python, Sass, Rust, Next.js, JavaScript, SQL.",
+    "source": "Indeed",
+    "date_posted": "2026-02-27T12:00:36.852Z",
+    "skills": [
+      "JavaScript",
+      "Python",
+      "SQL",
+      "Next.js",
+      "Rust",
+      "Sass"
+    ],
+    "job_url": "https://example.com/job/10r17jbug",
+    "_id": "mnaa3r3pfrcgtghy41e"
+  },
+  {
+    "title": "Tailwind Developer",
+    "company": "UI Pros",
+    "location": "London",
+    "description": "We are looking for an expert in Tailwind, Next.js, Rust, Node.js, MongoDB, JavaScript.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-08T12:00:36.856Z",
+    "skills": [
+      "JavaScript",
+      "Node.js",
+      "Next.js",
+      "MongoDB",
+      "Rust",
+      "Tailwind"
+    ],
+    "job_url": "https://example.com/job/kfm2vxaop",
+    "_id": "mnaa3r3ti0xqio0qptn"
+  },
+  {
+    "title": "Node.js Developer",
+    "company": "GlobalSoft",
+    "location": "Remote",
+    "description": "We are looking for an expert in Node.js, Angular, Docker, C#, Rust.",
+    "source": "Indeed",
+    "date_posted": "2026-03-04T12:00:36.858Z",
+    "skills": [
+      "Node.js",
+      "Docker",
+      "Rust",
+      "Angular",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/o8mgn3qnv",
+    "_id": "mnaa3r3vmz83r2fd0lj"
+  },
+  {
+    "title": "Kubernetes Developer",
+    "company": "CyberGuard",
+    "location": "London",
+    "description": "We are looking for an expert in Kubernetes, CSS, JavaScript, C++, Python, Angular.",
+    "source": "Indeed",
+    "date_posted": "2026-03-20T12:00:36.861Z",
+    "skills": [
+      "JavaScript",
+      "Python",
+      "Kubernetes",
+      "Angular",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/kanedzb30",
+    "_id": "mnaa3r3y7xdmpzfvphm"
+  },
+  {
+    "title": "Next.js Developer",
+    "company": "DevSync",
+    "location": "New York",
+    "description": "We are looking for an expert in Next.js, Python, MongoDB.",
+    "source": "Indeed",
+    "date_posted": "2026-03-16T12:00:36.867Z",
+    "skills": [
+      "Python",
+      "Next.js",
+      "MongoDB",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/2c0f2s6tc",
+    "_id": "mnaa3r44g6yb4ez8mab"
+  },
+  {
+    "title": "CSS Developer",
+    "company": "InnovateIT",
+    "location": "Singapore",
+    "description": "We are looking for an expert in CSS, Rust, C++, HTML, Angular.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-24T12:00:36.870Z",
+    "skills": [
+      "Rust",
+      "Angular",
+      "HTML",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/jedpyt39",
+    "_id": "mnaa3r46zhm7zs1fpod"
+  },
+  {
+    "title": "PHP Developer",
+    "company": "StartupX",
+    "location": "Austin",
+    "description": "We are looking for an expert in PHP, Rust, Go, JavaScript, AWS.",
+    "source": "Indeed",
+    "date_posted": "2026-03-16T12:00:36.874Z",
+    "skills": [
+      "JavaScript",
+      "AWS",
+      "Go",
+      "Rust",
+      "PHP"
+    ],
+    "job_url": "https://example.com/job/vpgncqxaf",
+    "_id": "mnaa3r4acyd49lp2jgw"
+  },
+  {
+    "title": "Angular Developer",
+    "company": "Backend Hub",
+    "location": "Berlin",
+    "description": "We are looking for an expert in Angular, Python, Kubernetes.",
+    "source": "Naukri",
+    "date_posted": "2026-03-24T12:00:36.876Z",
+    "skills": [
+      "Python",
+      "Kubernetes",
+      "Angular"
+    ],
+    "job_url": "https://example.com/job/rvmg641uk",
+    "_id": "mnaa3r4dxfbvr42ojd"
+  },
+  {
+    "title": "SQL Developer",
+    "company": "InnovateIT",
+    "location": "Singapore",
+    "description": "We are looking for an expert in SQL, Tailwind, Node.js, Vue.js, Next.js, React.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-18T12:00:36.879Z",
+    "skills": [
+      "React",
+      "Node.js",
+      "SQL",
+      "Next.js",
+      "Vue.js",
+      "Tailwind",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/j51n1q1ex",
+    "_id": "mnaa3r4hpjbwp1j7jfp"
+  },
+  {
+    "title": "JavaScript Developer",
+    "company": "TechCorp",
+    "location": "Austin",
+    "description": "We are looking for an expert in JavaScript, CSS, Kubernetes.",
+    "source": "Indeed",
+    "date_posted": "2026-03-05T12:00:36.885Z",
+    "skills": [
+      "JavaScript",
+      "Kubernetes",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/b6zme9c2j",
+    "_id": "mnaa3r4mmighwi96vla"
+  },
+  {
+    "title": "React Developer",
+    "company": "DataLabs",
+    "location": "Berlin",
+    "description": "We are looking for an expert in React, Rust, Angular.",
+    "source": "Naukri",
+    "date_posted": "2026-03-20T12:00:36.888Z",
+    "skills": [
+      "React",
+      "Rust",
+      "Angular"
+    ],
+    "job_url": "https://example.com/job/8f9rdg3gm",
+    "_id": "mnaa3r4pv9bg1lmvnu"
+  },
+  {
+    "title": "JavaScript Developer",
+    "company": "CloudScale",
+    "location": "San Francisco",
+    "description": "We are looking for an expert in JavaScript, Java, HTML, Tailwind, CSS, C#.",
+    "source": "Naukri",
+    "date_posted": "2026-03-18T12:00:36.892Z",
+    "skills": [
+      "JavaScript",
+      "Java",
+      "Tailwind",
+      "HTML",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/97xjynrdd",
+    "_id": "mnaa3r4sojmg5qjor9h"
+  },
+  {
+    "title": "PostgreSQL Developer",
+    "company": "GlobalSoft",
+    "location": "Dubai",
+    "description": "We are looking for an expert in PostgreSQL, Python, Sass.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-16T12:00:36.894Z",
+    "skills": [
+      "Python",
+      "PostgreSQL",
+      "Sass"
+    ],
+    "job_url": "https://example.com/job/tlldn06rs",
+    "_id": "mnaa3r4vszchdlgccun"
+  },
+  {
+    "title": "Java Developer",
+    "company": "InnovateIT",
+    "location": "Remote",
+    "description": "We are looking for an expert in Java, Python, Angular, C++, Rust, C#.",
+    "source": "Indeed",
+    "date_posted": "2026-03-05T12:00:36.900Z",
+    "skills": [
+      "Python",
+      "Java",
+      "Rust",
+      "Angular"
+    ],
+    "job_url": "https://example.com/job/fxmmus3rh",
+    "_id": "mnaa3r51jdg3x054tll"
+  },
+  {
+    "title": "Kubernetes Developer",
+    "company": "CloudScale",
+    "location": "Seattle",
+    "description": "We are looking for an expert in Kubernetes, SQL, Rust.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-16T12:00:36.903Z",
+    "skills": [
+      "SQL",
+      "Kubernetes",
+      "Rust"
+    ],
+    "job_url": "https://example.com/job/sd4opz39k",
+    "_id": "mnaa3r54488y3bbf4o6"
+  },
+  {
+    "title": "SQL Developer",
+    "company": "InnovateIT",
+    "location": "Remote",
+    "description": "We are looking for an expert in SQL, Node.js, MongoDB.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-20T12:00:36.906Z",
+    "skills": [
+      "Node.js",
+      "SQL",
+      "MongoDB",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/hx8crhlu4",
+    "_id": "mnaa3r58cpv5r0y4qz"
+  },
+  {
+    "title": "TypeScript Developer",
+    "company": "DataLabs",
+    "location": "Bangalore",
+    "description": "We are looking for an expert in TypeScript, React, MongoDB, Java, HTML, AWS.",
+    "source": "LinkedIn",
+    "date_posted": "2026-03-21T12:00:36.910Z",
+    "skills": [
+      "React",
+      "TypeScript",
+      "AWS",
+      "MongoDB",
+      "Java",
+      "HTML"
+    ],
+    "job_url": "https://example.com/job/no4zjea27",
+    "_id": "mnaa3r5bme5l2l57tu"
+  },
+  {
+    "title": "HTML Developer",
+    "company": "CyberGuard",
+    "location": "New York",
+    "description": "We are looking for an expert in HTML, Java, AWS.",
+    "source": "Indeed",
+    "date_posted": "2026-03-27T12:00:36.914Z",
+    "skills": [
+      "AWS",
+      "Java",
+      "HTML"
+    ],
+    "job_url": "https://example.com/job/tnq954emk",
+    "_id": "mnaa3r5hfmhz5t6vw4t"
+  },
+  {
+    "title": "Tailwind Developer",
+    "company": "CloudScale",
+    "location": "New York",
+    "description": "We are looking for an expert in Tailwind, Python, Go, CSS.",
+    "source": "Indeed",
+    "date_posted": "2026-03-05T12:00:36.922Z",
+    "skills": [
+      "Python",
+      "Go",
+      "Tailwind",
+      "CSS"
+    ],
+    "job_url": "https://example.com/job/uel0bu680",
+    "_id": "mnaa3r5n0yqolqr0zet"
+  },
+  {
+    "title": "Python Developer",
+    "company": "CloudScale",
+    "location": "Berlin",
+    "description": "We are looking for an expert in Python, Node.js, Rust, JavaScript, React.",
+    "source": "Glassdoor",
+    "date_posted": "2026-03-02T12:00:36.926Z",
+    "skills": [
+      "JavaScript",
+      "Python",
+      "React",
+      "Node.js",
+      "Rust"
+    ],
+    "job_url": "https://example.com/job/86ddoptrh",
+    "_id": "mnaa3r5rvmmnrq6ofks"
+  },
+  {
+    "title": "Kubernetes Developer",
+    "company": "DataLabs",
+    "location": "Singapore",
+    "description": "We are looking for an expert in Kubernetes, Rust, C++, Tailwind, Go.",
+    "source": "Naukri",
+    "date_posted": "2026-03-24T12:00:36.929Z",
+    "skills": [
+      "Kubernetes",
+      "Go",
+      "Rust",
+      "Tailwind"
+    ],
+    "job_url": "https://example.com/job/mv3xa8cek",
+    "_id": "mnaa3r5vy6jo7ukft4"
+  },
+  {
+    "title": "JavaScript Developer",
+    "company": "TechCorp",
+    "location": "San Francisco",
+    "description": "We are looking for an expert in JavaScript, Tailwind, AWS, Rust, MongoDB.",
+    "source": "Naukri",
+    "date_posted": "2026-03-27T12:00:36.935Z",
+    "skills": [
+      "JavaScript",
+      "AWS",
+      "MongoDB",
+      "Rust",
+      "Tailwind"
+    ],
+    "job_url": "https://example.com/job/43672z5w6",
+    "_id": "mnaa3r60j6szhsqgpel"
+  },
+  {
+    "title": "Kubernetes Developer",
+    "company": "DataLabs",
+    "location": "Austin",
+    "description": "We are looking for an expert in Kubernetes, AWS, Angular, TypeScript.",
+    "source": "Naukri",
+    "date_posted": "2026-03-03T12:00:36.938Z",
+    "skills": [
+      "TypeScript",
+      "AWS",
+      "Kubernetes",
+      "Angular"
+    ],
+    "job_url": "https://example.com/job/8enrjur4o",
+    "_id": "mnaa3r63vrixixsyon8"
+  },
+  {
+    "title": "C++ Developer",
+    "company": "InnovateIT",
+    "location": "Singapore",
+    "description": "We are looking for an expert in C++, Java, Express, PHP.",
+    "source": "Indeed",
+    "date_posted": "2026-03-25T12:00:36.942Z",
+    "skills": [
+      "Express",
+      "Java",
+      "PHP"
+    ],
+    "job_url": "https://example.com/job/xdqvld6pu",
+    "_id": "mnaa3r67n2t5a5ysw6"
+  },
+  {
+    "title": "MongoDB Developer",
+    "company": "StartupX",
+    "location": "Dubai",
+    "description": "We are looking for an expert in MongoDB, Node.js, PostgreSQL, Angular, Docker.",
+    "source": "Naukri",
+    "date_posted": "2026-03-24T12:00:36.945Z",
+    "skills": [
+      "Node.js",
+      "Docker",
+      "MongoDB",
+      "PostgreSQL",
+      "Angular",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/n2c45bhy1",
+    "_id": "mnaa3r6a5o5o5js2xoj"
+  },
+  {
+    "title": "Node.js Developer",
+    "company": "StartupX",
+    "location": "London",
+    "description": "We are looking for an expert in Node.js, TypeScript, SQL, Java, Sass, AWS.",
+    "source": "Indeed",
+    "date_posted": "2026-03-13T12:00:36.951Z",
+    "skills": [
+      "Node.js",
+      "TypeScript",
+      "SQL",
+      "AWS",
+      "Java",
+      "Sass",
+      "JavaScript"
+    ],
+    "job_url": "https://example.com/job/i8r5pglsr",
+    "_id": "mnaa3r6gbcftakvk9j"
+  }
+]
