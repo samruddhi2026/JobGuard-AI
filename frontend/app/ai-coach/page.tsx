@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Brain, Sparkles, Send, Copy, Check, MessageSquare, FileText, LoaderCircle as Loader2, ArrowRight, Zap, Target, AlertCircle, ListChecks, Wand2, X, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -466,7 +466,7 @@ function AICoachContent() {
     );
 }
 
-import { Suspense } from "react";
+
 
 export default function AICoachPage() {
     return (
