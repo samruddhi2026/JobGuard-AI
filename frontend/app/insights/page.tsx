@@ -46,7 +46,7 @@ export default function InsightsPage() {
             if (role !== "All") params.append("role", role);
             if (experience !== "All") params.append("experience", experience);
             
-            const apiBase = process.env.NEXT_PUBLIC_INSIGHTS_API_URL || 'http://localhost:5001/api';
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
             const res = await fetch(`${apiBase}/stats/insights?${params.toString()}`);
             
             if (!res.ok) {
